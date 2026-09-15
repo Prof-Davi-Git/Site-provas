@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prova Online | Prof. Davi</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section id="tela-inicial" class="card tela ativa">
+      <div class="brand">PROVA ONLINE</div>
+      <h1>Avaliação de Teste</h1>
+      <p class="subtitulo">Ambiente de avaliação do Prof. Davi</p>
+
+      <div class="aviso-box">
+        <strong>Antes de iniciar</strong>
+        <p>A prova possui 5 questões. Durante a avaliação, sair da aba, minimizar a janela ou abandonar a tela cheia gera uma ocorrência.</p>
+        <p><strong>Ao atingir 3 ocorrências, a prova é finalizada automaticamente.</strong></p>
+      </div>
+
+      <label for="nome-aluno">Nome completo</label>
+      <input id="nome-aluno" type="text" autocomplete="off" placeholder="Digite seu nome completo" maxlength="120">
+      <p id="erro-nome" class="erro" aria-live="polite"></p>
+
+      <button id="btn-iniciar" class="btn btn-primary">Iniciar prova</button>
+      <p class="rodape-info">Ao iniciar, o cronômetro começa e o modo de prova é ativado.</p>
+    </section>
+
+    <section id="tela-prova" class="tela">
+      <header class="topbar card">
+        <div>
+          <span class="label-mini">ALUNO</span>
+          <strong id="nome-exibicao"></strong>
+        </div>
+        <div class="status-group">
+          <div class="status-item">
+            <span class="label-mini">TEMPO</span>
+            <strong id="cronometro">10:00</strong>
+          </div>
+          <div class="status-item">
+            <span class="label-mini">SAÍDAS</span>
+            <strong id="contador-saidas">0/3</strong>
+          </div>
+        </div>
+      </header>
+
+      <section class="card prova-card">
+        <div class="progresso-topo">
+          <span id="numero-questao">Questão 1 de 5</span>
+          <span id="percentual-progresso">20%</span>
+        </div>
+        <div class="barra"><div id="barra-progresso"></div></div>
+
+        <h2 id="texto-questao"></h2>
+        <div id="alternativas" class="alternativas"></div>
+
+        <div class="acoes-prova">
+          <span id="mensagem-resposta" class="erro" aria-live="polite"></span>
+          <button id="btn-proxima" class="btn btn-primary">Próxima questão</button>
+        </div>
+      </section>
+    </section>
+
+    <section id="tela-resultado" class="card tela">
+      <div id="resultado-icone" class="resultado-icone">✓</div>
+      <h1 id="resultado-titulo">Prova finalizada</h1>
+      <p id="resultado-aluno" class="subtitulo"></p>
+
+      <div class="placar">
+        <div><span>Acertos</span><strong id="total-acertos">0/5</strong></div>
+        <div><span>Tempo</span><strong id="tempo-final">00:00</strong></div>
+        <div><span>Ocorrências</span><strong id="saidas-final">0</strong></div>
+      </div>
+
+      <h2>Seu resultado</h2>
+      <p class="resultado-nota">Você verá apenas se acertou ou errou cada questão. A resposta correta não é exibida.</p>
+      <div id="lista-resultado" class="lista-resultado"></div>
+
+      <div id="status-envio" class="status-envio">Resultado salvo nesta versão de teste.</div>
+    </section>
+  </main>
+
+  <div id="modal-ocorrencia" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-alerta">!</div>
+      <h2>Ocorrência registrada</h2>
+      <p>Você saiu do modo de prova.</p>
+      <strong id="modal-contador">Ocorrência 1 de 3</strong>
+      <p id="modal-detalhe" class="modal-detalhe"></p>
+      <button id="btn-continuar" class="btn btn-primary">Continuar prova</button>
+    </div>
+  </div>
+
+  <iframe name="envio-forms" id="envio-forms" class="iframe-oculto" title="Envio de respostas"></iframe>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -10,6 +10,7 @@ const TEMPO_PROVA_SEGUNDOS = 10 * 60;
 const FORM_CONFIG = {
   url: "", // Ex.: https://docs.google.com/forms/d/e/SEU_ID/formResponse
   campos: {
+    escola: "",
     nome: "",
     respostas: "",
     acertos: "",
@@ -17,6 +18,23 @@ const FORM_CONFIG = {
     ocorrencias: "",
     tempo: "",
     encerramento: ""
+  }
+};
+
+// LISTAS DAS TURMAS.
+// Os nomes enviados pelo professor serão adicionados nos arrays correspondentes.
+const escolas = {
+  "maria-vera": {
+    nome: "EE Maria Vera Lombardi Siqueira",
+    alunos: []
+  },
+  "joao-prado": {
+    nome: "EE Professor João Prado Margarido",
+    alunos: []
+  },
+  "armando-gomes": {
+    nome: "EE Professor Armando Gomes de Araujo",
+    alunos: []
   }
 };
 
@@ -51,7 +69,10 @@ const questoes = [
 // GABARITO TEMPORÁRIO DA DEMONSTRAÇÃO.
 const gabaritoDemo = { q1: 1, q2: 1, q3: 1, q4: 0, q5: 2 };
 
+let escolaId = "";
+let escolaNome = "";
 let aluno = "";
+let alunoSelecionado = "";
 let indiceAtual = 0;
 let respostas = {};
 let ocorrencias = [];
@@ -68,6 +89,120 @@ const telas = document.querySelectorAll(".tela");
 function mostrarTela(id) {
   telas.forEach(t => t.classList.remove("ativa"));
   $(id).classList.add("ativa");
+}
+
+function normalizarTexto(texto) {
+  return String(texto || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function atualizarAlunoSelecionado() {
+  const caixa = $("#aluno-selecionado");
+  if (!alunoSelecionado) {
+    caixa.textContent = "";
+    caixa.classList.add("oculto");
+    return;
+  }
+
+  caixa.textContent = `Aluno selecionado: ${alunoSelecionado}`;
+  caixa.classList.remove("oculto");
+}
+
+function selecionarAluno(nome) {
+  alunoSelecionado = nome;
+  $("#busca-aluno").value = nome;
+  $("#erro-identificacao").textContent = "";
+  atualizarAlunoSelecionado();
+  renderizarAlunos("");
+}
+
+function renderizarAlunos(filtro = "") {
+  const lista = $("#lista-alunos");
+  lista.innerHTML = "";
+
+  if (!escolaId || !escolas[escolaId]) return;
+
+  const alunosDaEscola = [...escolas[escolaId].alunos].sort((a, b) =>
+    a.localeCompare(b, "pt-BR", { sensitivity: "base" })
+  );
+
+  if (!alunosDaEscola.length) {
+    const vazio = document.createElement("div");
+    vazio.className = "lista-vazia";
+    vazio.textContent = "A lista de alunos desta escola ainda será cadastrada.";
+    lista.appendChild(vazio);
+    return;
+  }
+
+  if (alunoSelecionado && $("#busca-aluno").value === alunoSelecionado && !filtro) {
+    const trocar = document.createElement("button");
+    trocar.type = "button";
+    trocar.className = "aluno-opcao";
+    trocar.textContent = "Trocar aluno selecionado";
+    trocar.addEventListener("click", () => {
+      alunoSelecionado = "";
+      $("#busca-aluno").value = "";
+      atualizarAlunoSelecionado();
+      renderizarAlunos("");
+      $("#busca-aluno").focus();
+    });
+    lista.appendChild(trocar);
+    return;
+  }
+
+  const filtroNormalizado = normalizarTexto(filtro);
+  const encontrados = alunosDaEscola.filter(nome =>
+    !filtroNormalizado || normalizarTexto(nome).includes(filtroNormalizado)
+  );
+
+  if (!encontrados.length) {
+    const vazio = document.createElement("div");
+    vazio.className = "lista-vazia";
+    vazio.textContent = "Nenhum aluno encontrado com essa pesquisa.";
+    lista.appendChild(vazio);
+    return;
+  }
+
+  encontrados.forEach(nome => {
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "aluno-opcao";
+    botao.textContent = nome;
+    botao.setAttribute("role", "option");
+    botao.addEventListener("click", () => selecionarAluno(nome));
+    lista.appendChild(botao);
+  });
+}
+
+function alterarEscola() {
+  escolaId = $("#escola-aluno").value;
+  escolaNome = escolaId && escolas[escolaId] ? escolas[escolaId].nome : "";
+  alunoSelecionado = "";
+  aluno = "";
+  $("#busca-aluno").value = "";
+  $("#erro-identificacao").textContent = "";
+  atualizarAlunoSelecionado();
+
+  if (!escolaId) {
+    $("#seletor-aluno").classList.add("oculto");
+    $("#lista-alunos").innerHTML = "";
+    return;
+  }
+
+  $("#seletor-aluno").classList.remove("oculto");
+  renderizarAlunos("");
+}
+
+function filtrarAlunos() {
+  const busca = $("#busca-aluno").value;
+  if (alunoSelecionado && busca !== alunoSelecionado) {
+    alunoSelecionado = "";
+    atualizarAlunoSelecionado();
+  }
+  renderizarAlunos(busca);
 }
 
 function formatarTempo(segundos) {
@@ -130,15 +265,21 @@ function renderizarQuestao() {
 }
 
 async function iniciarProva() {
-  const nome = $("#nome-aluno").value.trim().replace(/\s+/g, " ");
-  if (nome.length < 5 || !nome.includes(" ")) {
-    $("#erro-nome").textContent = "Digite seu nome completo para iniciar.";
+  if (!escolaId || !escolas[escolaId]) {
+    $("#erro-identificacao").textContent = "Selecione sua escola para continuar.";
     return;
   }
 
-  aluno = nome;
-  $("#erro-nome").textContent = "";
+  if (!alunoSelecionado || !escolas[escolaId].alunos.includes(alunoSelecionado)) {
+    $("#erro-identificacao").textContent = "Pesquise e selecione seu nome na lista da turma.";
+    return;
+  }
+
+  aluno = alunoSelecionado;
+  escolaNome = escolas[escolaId].nome;
+  $("#erro-identificacao").textContent = "";
   $("#nome-exibicao").textContent = aluno;
+  $("#escola-exibicao").textContent = escolaNome;
   mostrarTela("#tela-prova");
   provaAtiva = true;
   inicioTimestamp = Date.now();
@@ -241,6 +382,7 @@ function enviarParaForms(dados) {
     form.appendChild(input);
   };
 
+  adicionar(FORM_CONFIG.campos.escola, dados.escola);
   adicionar(FORM_CONFIG.campos.nome, dados.nome);
   adicionar(FORM_CONFIG.campos.respostas, dados.respostas);
   adicionar(FORM_CONFIG.campos.acertos, dados.acertos);
@@ -271,6 +413,7 @@ async function finalizarProva(motivo) {
   const tempo = formatarTempo(tempoUtilizado());
 
   $("#resultado-aluno").textContent = aluno;
+  $("#resultado-escola").textContent = escolaNome;
   $("#total-acertos").textContent = `${resultado.acertos}/${questoes.length}`;
   $("#tempo-final").textContent = tempo;
   $("#saidas-final").textContent = ocorrencias.length;
@@ -283,6 +426,7 @@ async function finalizarProva(motivo) {
   `).join("");
 
   const enviado = enviarParaForms({
+    escola: escolaNome,
     nome: aluno,
     respostas: letrasRespostas(),
     acertos: `${resultado.acertos}/${questoes.length}`,
@@ -330,9 +474,8 @@ document.addEventListener("keydown", e => {
   if ((e.ctrlKey || e.metaKey) && ["c", "v", "x", "u", "p"].includes(tecla)) e.preventDefault();
 });
 
+$("#escola-aluno").addEventListener("change", alterarEscola);
+$("#busca-aluno").addEventListener("input", filtrarAlunos);
 $("#btn-iniciar").addEventListener("click", iniciarProva);
 $("#btn-proxima").addEventListener("click", proximaQuestao);
 $("#btn-continuar").addEventListener("click", continuarProva);
-$("#nome-aluno").addEventListener("keydown", e => {
-  if (e.key === "Enter") iniciarProva();
-});

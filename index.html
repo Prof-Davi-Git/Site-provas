@@ -19,9 +19,30 @@
         <p><strong>Ao atingir 3 ocorrências, a prova é finalizada automaticamente.</strong></p>
       </div>
 
-      <label for="nome-aluno">Nome completo</label>
-      <input id="nome-aluno" type="text" autocomplete="off" placeholder="Digite seu nome completo" maxlength="120">
-      <p id="erro-nome" class="erro" aria-live="polite"></p>
+      <div class="identificacao-box">
+        <h2>Identificação do aluno</h2>
+        <p class="identificacao-ajuda">Selecione sua escola e depois localize seu nome na lista da turma.</p>
+
+        <label for="escola-aluno">Escola</label>
+        <select id="escola-aluno">
+          <option value="">Selecione sua escola</option>
+          <option value="maria-vera">EE Maria Vera Lombardi Siqueira</option>
+          <option value="joao-prado">EE Professor João Prado Margarido</option>
+          <option value="armando-gomes">EE Professor Armando Gomes de Araujo</option>
+        </select>
+
+        <div id="seletor-aluno" class="seletor-aluno oculto">
+          <label for="busca-aluno">Aluno</label>
+          <div class="campo-busca-aluno">
+            <input id="busca-aluno" type="text" autocomplete="off" placeholder="Digite parte do seu nome para pesquisar" maxlength="120">
+            <span class="icone-busca" aria-hidden="true">⌕</span>
+          </div>
+          <div id="lista-alunos" class="lista-alunos" role="listbox" aria-label="Lista de alunos"></div>
+          <div id="aluno-selecionado" class="aluno-selecionado oculto"></div>
+        </div>
+
+        <p id="erro-identificacao" class="erro" aria-live="polite"></p>
+      </div>
 
       <button id="btn-iniciar" class="btn btn-primary">Iniciar prova</button>
       <p class="rodape-info">Ao iniciar, o cronômetro começa e o modo de prova é ativado.</p>
@@ -29,9 +50,10 @@
 
     <section id="tela-prova" class="tela">
       <header class="topbar card">
-        <div>
+        <div class="identidade-prova">
           <span class="label-mini">ALUNO</span>
           <strong id="nome-exibicao"></strong>
+          <small id="escola-exibicao"></small>
         </div>
         <div class="status-group">
           <div class="status-item">
@@ -66,6 +88,7 @@
       <div id="resultado-icone" class="resultado-icone">✓</div>
       <h1 id="resultado-titulo">Prova finalizada</h1>
       <p id="resultado-aluno" class="subtitulo"></p>
+      <p id="resultado-escola" class="resultado-escola"></p>
 
       <div class="placar">
         <div><span>Acertos</span><strong id="total-acertos">0/5</strong></div>

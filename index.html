@@ -603,46 +603,21 @@
 
     function fecharMaterial() {
 
-      painelMaterial.classList.remove("ativo");
+        painelMaterial.classList.remove("ativo");
 
-      painelMaterial.setAttribute(
-        "aria-hidden",
-        "true"
-      );
-
-      iframeMaterial.src = "";
-
-      window.materialConsultaAberto = false;
-
-      window.focus();
-
-    }
-
-
-    document
-      .querySelectorAll("[data-material]")
-      .forEach(botao => {
-
-        botao.addEventListener(
-          "click",
-          function () {
-
-            abrirMaterial(
-              this.dataset.material
-            );
-
-          }
+        painelMaterial.setAttribute(
+          "aria-hidden",
+          "true"
         );
 
-      });
+        iframeMaterial.src = "";
 
+        window.focus();
 
-    btnVoltarProva.addEventListener(
-      "click",
-      fecharMaterial
-    );
+        // Pequeno atraso para evitar que a volta do foco
+        // seja interpretada como saída da prova.
+        setTimeout(() => {
+          window.materialConsultaAberto = false;
+        }, 300);
 
-  </script>
-
-</body>
-</html>
+        }

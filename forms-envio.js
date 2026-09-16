@@ -14,14 +14,11 @@ function lerEnviosPendentes() {
 }
 
 function salvarEnviosPendentes(lista) {
-  try {
-    localStorage.setItem(CHAVE_ENVIOS_PENDENTES, JSON.stringify(lista));
-  } catch (e) {}
+  try { localStorage.setItem(CHAVE_ENVIOS_PENDENTES, JSON.stringify(lista)); } catch (e) {}
 }
 
 function removerEnvioPendente(id) {
-  const lista = lerEnviosPendentes().filter(item => item.id !== id);
-  salvarEnviosPendentes(lista);
+  salvarEnviosPendentes(lerEnviosPendentes().filter(item => item.id !== id));
 }
 
 function atualizarStatusEnvio(texto) {
@@ -33,7 +30,6 @@ function criarPayloadForms(item) {
   const params = new URLSearchParams();
   const c = item.campos;
   const d = item.dados;
-
   params.set(c.escola, d.escola || "");
   params.set(c.nome, d.nome || "");
   params.set(c.respostas, d.respostas || "");
@@ -42,47 +38,38 @@ function criarPayloadForms(item) {
   params.set(c.ocorrencias, d.ocorrencias || "");
   params.set(c.tempo, d.tempo || "");
   params.set(c.encerramento, d.encerramento || "");
-
   return params;
 }
 
 async function tentarEnviarItemForms(item, mostrarStatus = true) {
   try {
     if (!navigator.onLine) throw new Error("offline");
-
-    const resposta = await fetch(item.url, {
+    await fetch(item.url, {
       method: "POST",
       mode: "no-cors",
       cache: "no-store",
       keepalive: true,
       body: criarPayloadForms(item)
     });
-
-    // Em modo no-cors o navegador devolve uma resposta opaca. Se a Promise
-    // resolveu, a requisição foi entregue à rede sem erro de transporte.
     removerEnvioPendente(item.id);
     if (mostrarStatus) atualizarStatusEnvio("Prova finalizada e enviada ao professor.");
     return true;
   } catch (e) {
-    if (mostrarStatus) {
-      atualizarStatusEnvio("Resultado salvo neste computador. O envio ao professor será tentado novamente quando a internet voltar.");
-    }
+    if (mostrarStatus) atualizarStatusEnvio("Resultado salvo neste computador. O envio ao professor será tentado novamente quando a internet voltar.");
     return false;
   }
 }
 
 async function reenviarPendentes() {
   if (!navigator.onLine) return;
-  const pendentes = lerEnviosPendentes();
-  for (const item of pendentes) {
+  for (const item of lerEnviosPendentes()) {
     await tentarEnviarItemForms(item, false);
   }
 }
 
-// Substitui o envio antigo por um envio com fila local e retry automático.
-enviarParaForms = function (dados) {
+enviarParaForms = function (dados, escolaParaEnvio = "") {
   if (typeof aplicarConfigFormsDaEscola === "function") {
-    aplicarConfigFormsDaEscola();
+    aplicarConfigFormsDaEscola(escolaParaEnvio || undefined);
   }
 
   if (!formularioConfigurado()) return false;
@@ -92,14 +79,13 @@ enviarParaForms = function (dados) {
     url: FORM_CONFIG.url,
     campos: { ...FORM_CONFIG.campos },
     dados: { ...dados },
+    escolaId: escolaParaEnvio || "",
     criadoEm: new Date().toISOString()
   };
 
   const fila = lerEnviosPendentes();
   fila.push(item);
   salvarEnviosPendentes(fila);
-
-  // Não bloqueia a tela final. O envio acontece em paralelo.
   tentarEnviarItemForms(item, true);
   return true;
 };

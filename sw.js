@@ -1,4 +1,4 @@
-const CACHE_NAME = "site-provas-v20260916-7";
+const CACHE_NAME = "site-provas-v20260916-8";
 const ARQUIVOS = [
   "./",
   "./index.html",
@@ -11,7 +11,8 @@ const ARQUIVOS = [
   "./prova-joao-prado.js",
   "./recuperacao.js",
   "./bloqueio-local.js",
-  "./backend-apps-script.js"
+  "./backend-apps-script.js",
+  "./envio-oficial.js"
 ];
 
 self.addEventListener("install", event => {

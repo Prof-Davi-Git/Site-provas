@@ -1,10 +1,11 @@
-const CACHE_NAME = "site-provas-v20260916-4";
+const CACHE_NAME = "site-provas-v20260916-5";
 const ARQUIVOS = [
   "./",
   "./index.html",
   "./style.css",
   "./script.js",
   "./forms-config.js",
+  "./forms-envio.js",
   "./prova-frontend.js",
   "./recuperacao.js"
 ];
@@ -39,17 +40,21 @@ self.addEventListener("fetch", event => {
 
   if (url.origin !== self.location.origin) return;
 
+  // Quando houver internet, prioriza sempre a versão mais nova.
+  // O cache passa a ser apenas fallback para funcionamento offline.
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
-    const emCache = await cache.match(request, { ignoreSearch: true });
-
-    if (emCache) return emCache;
 
     try {
-      const resposta = await fetch(request);
-      if (resposta && resposta.ok) cache.put(request, resposta.clone());
+      const resposta = await fetch(request, { cache: "no-store" });
+      if (resposta && resposta.ok) {
+        cache.put(request, resposta.clone());
+      }
       return resposta;
     } catch (e) {
+      const emCache = await cache.match(request, { ignoreSearch: true });
+      if (emCache) return emCache;
+
       if (request.mode === "navigate") {
         const pagina = await cache.match("./index.html", { ignoreSearch: true });
         if (pagina) return pagina;

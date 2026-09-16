@@ -483,34 +483,31 @@ async function finalizarProva(motivo) {
   mostrarTela("#tela-resultado");
 }
 
+
 // Monitoramento do modo de prova.
+// O material de consulta pode receber foco dentro do iframe
+// sem gerar ocorrência.
+
+// Trocar de aba / minimizar continua sendo ocorrência.
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden) registrarOcorrencia("Aba ou janela ocultada");
+  if (document.hidden) {
+    registrarOcorrencia("Aba ou janela ocultada");
+  }
 });
 
-window.addEventListener("blur", () => registrarOcorrencia("Janela perdeu o foco"));
+// Clicar dentro do Canva incorporado NÃO conta.
+// Perder o foco fora do material continua contando.
+window.addEventListener("blur", () => {
+  if (window.materialConsultaAberto === true) {
+    return;
+  }
 
+  registrarOcorrencia("Janela perdeu o foco");
+});
+
+// Sair realmente da tela cheia continua contando.
 document.addEventListener("fullscreenchange", () => {
-  if (provaAtiva && !document.fullscreenElement) registrarOcorrencia("Saiu da tela cheia");
+  if (provaAtiva && !document.fullscreenElement) {
+    registrarOcorrencia("Saiu da tela cheia");
+  }
 });
-
-// Dificulta ações comuns durante a prova. Isso não substitui um navegador seguro.
-document.addEventListener("contextmenu", e => {
-  if (provaAtiva) e.preventDefault();
-});
-["copy", "cut", "paste"].forEach(evento => {
-  document.addEventListener(evento, e => {
-    if (provaAtiva) e.preventDefault();
-  });
-});
-document.addEventListener("keydown", e => {
-  if (!provaAtiva) return;
-  const tecla = e.key.toLowerCase();
-  if ((e.ctrlKey || e.metaKey) && ["c", "v", "x", "u", "p"].includes(tecla)) e.preventDefault();
-});
-
-$("#escola-aluno").addEventListener("change", alterarEscola);
-$("#busca-aluno").addEventListener("input", filtrarAlunos);
-$("#btn-iniciar").addEventListener("click", iniciarProva);
-$("#btn-proxima").addEventListener("click", proximaQuestao);
-$("#btn-continuar").addEventListener("click", continuarProva);

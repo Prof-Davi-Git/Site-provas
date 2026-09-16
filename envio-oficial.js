@@ -1,7 +1,23 @@
 // ENVIO OFICIAL AO FORMS — 16/09/2026
-// Quando o Apps Script confirmar que ele próprio enviou a resposta ao Forms,
-// impede um segundo envio pelo navegador. Enquanto o servidor antigo não
-// informar formsEnviado=true, o envio do navegador continua como fallback.
+// O Apps Script passa a ser o responsável principal pelo envio ao Forms.
+// Enquanto o servidor antigo não informar formsEnviado=true, o navegador
+// mantém o envio anterior como fallback para não perder respostas.
+
+if (typeof corrigirNoServidor === "function") {
+  corrigirNoServidor = function (payload) {
+    return chamarAppsScriptJSONP({
+      acao: "corrigir",
+      escola: payload.escolaId,
+      aluno: payload.aluno,
+      tentativaId: payload.tentativaId,
+      respostas: JSON.stringify(payload.respostas),
+      ordemQuestoes: JSON.stringify(payload.ordemQuestoes || []),
+      ocorrencias: payload.ocorrencias,
+      tempo: payload.tempo,
+      motivo: payload.motivo
+    }, 25000);
+  };
+}
 
 if (typeof processarResultadoServidor === "function") {
   const processarResultadoServidorAntesDoEnvioOficial = processarResultadoServidor;

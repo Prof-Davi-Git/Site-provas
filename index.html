@@ -4,18 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prova Online | Prof. Davi</title>
-  <link rel="stylesheet" href="style.css?v=20260915-2">
+  <link rel="stylesheet" href="style.css?v=20260915-3">
 </head>
 <body>
   <main class="app-shell">
     <section id="tela-inicial" class="card tela ativa">
       <div class="brand">PROVA ONLINE</div>
-      <h1>Avaliação de Teste</h1>
+      <h1 id="titulo-avaliacao">Avaliação Online</h1>
       <p class="subtitulo">Ambiente de avaliação do Prof. Davi</p>
 
       <div class="aviso-box">
         <strong>Antes de iniciar</strong>
-        <p>A prova possui 5 questões. Durante a avaliação, sair da aba, minimizar a janela ou abandonar a tela cheia gera uma ocorrência.</p>
+        <p id="info-prova">Selecione sua escola e seu nome para carregar a avaliação disponível.</p>
+        <p>Durante a avaliação, sair da aba, minimizar a janela ou abandonar a tela cheia gera uma ocorrência.</p>
         <p><strong>Ao atingir 3 ocorrências, a prova é finalizada automaticamente.</strong></p>
       </div>
 
@@ -58,7 +59,7 @@
         <div class="status-group">
           <div class="status-item">
             <span class="label-mini">TEMPO</span>
-            <strong id="cronometro">10:00</strong>
+            <strong id="cronometro">00:00</strong>
           </div>
           <div class="status-item">
             <span class="label-mini">SAÍDAS</span>
@@ -69,8 +70,8 @@
 
       <section class="card prova-card">
         <div class="progresso-topo">
-          <span id="numero-questao">Questão 1 de 5</span>
-          <span id="percentual-progresso">20%</span>
+          <span id="numero-questao">Questão</span>
+          <span id="percentual-progresso">0%</span>
         </div>
         <div class="barra"><div id="barra-progresso"></div></div>
 
@@ -91,7 +92,7 @@
       <p id="resultado-escola" class="resultado-escola"></p>
 
       <div class="placar">
-        <div><span>Acertos</span><strong id="total-acertos">0/5</strong></div>
+        <div><span>Acertos</span><strong id="total-acertos">0</strong></div>
         <div><span>Tempo</span><strong id="tempo-final">00:00</strong></div>
         <div><span>Ocorrências</span><strong id="saidas-final">0</strong></div>
       </div>
@@ -116,6 +117,7 @@
   </div>
 
   <iframe name="envio-forms" id="envio-forms" class="iframe-oculto" title="Envio de respostas"></iframe>
-  <script src="script.js?v=20260915-2"></script>
+  <script src="script.js?v=20260915-3"></script>
+  <script src="prova-frontend.js?v=20260915-3"></script>
 </body>
 </html>

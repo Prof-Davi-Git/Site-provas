@@ -1,4 +1,4 @@
-const CACHE_NAME = "site-provas-v20260916-6";
+const CACHE_NAME = "site-provas-v20260916-7";
 const ARQUIVOS = [
   "./",
   "./index.html",
@@ -6,9 +6,12 @@ const ARQUIVOS = [
   "./script.js",
   "./forms-config.js",
   "./forms-envio.js",
-  "./prova-frontend.js",
+  "./questoes-frontend.js",
+  "./questoes-mobile.js",
+  "./prova-joao-prado.js",
   "./recuperacao.js",
-  "./bloqueio-local.js"
+  "./bloqueio-local.js",
+  "./backend-apps-script.js"
 ];
 
 self.addEventListener("install", event => {
@@ -33,7 +36,6 @@ self.addEventListener("fetch", event => {
 
   const url = new URL(request.url);
 
-  // O heartbeat precisa ir realmente à rede para detectar queda de internet.
   if (url.origin === self.location.origin && url.pathname.endsWith("/ping.txt")) {
     event.respondWith(fetch(request));
     return;
@@ -41,21 +43,15 @@ self.addEventListener("fetch", event => {
 
   if (url.origin !== self.location.origin) return;
 
-  // Quando houver internet, prioriza sempre a versão mais nova.
-  // O cache passa a ser apenas fallback para funcionamento offline.
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
-
     try {
       const resposta = await fetch(request, { cache: "no-store" });
-      if (resposta && resposta.ok) {
-        cache.put(request, resposta.clone());
-      }
+      if (resposta && resposta.ok) cache.put(request, resposta.clone());
       return resposta;
     } catch (e) {
       const emCache = await cache.match(request, { ignoreSearch: true });
       if (emCache) return emCache;
-
       if (request.mode === "navigate") {
         const pagina = await cache.match("./index.html", { ignoreSearch: true });
         if (pagina) return pagina;

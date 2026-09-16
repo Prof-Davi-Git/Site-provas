@@ -1,9 +1,10 @@
-const CACHE_NAME = "site-provas-v20260916-2";
+const CACHE_NAME = "site-provas-v20260916-4";
 const ARQUIVOS = [
   "./",
   "./index.html",
   "./style.css",
   "./script.js",
+  "./forms-config.js",
   "./prova-frontend.js",
   "./recuperacao.js"
 ];

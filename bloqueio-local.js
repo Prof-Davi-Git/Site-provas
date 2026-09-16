@@ -1,7 +1,5 @@
 // BLOQUEIO LOCAL DE SEGUNDA TENTATIVA — 16/09/2026
-// Evita que um aluno que já concluiu a avaliação atual comece novamente
-// no mesmo navegador/dispositivo. O bloqueio definitivo entre computadores
-// será feito pelo Google Apps Script.
+// Atua como proteção imediata no dispositivo. O Apps Script é a fonte definitiva.
 
 const PROVA_ID_ATUAL = "joao-prado-frontend-mobile-3b-2026-v1";
 const CHAVE_CONCLUIDAS = "site-provas:concluidas:v1";
@@ -25,8 +23,7 @@ function chaveConclusao(escola, nome) {
 
 function obterConclusaoLocal(escola, nome) {
   if (!escola || !nome) return null;
-  const dados = lerConclusoesLocais();
-  return dados[chaveConclusao(escola, nome)] || null;
+  return lerConclusoesLocais()[chaveConclusao(escola, nome)] || null;
 }
 
 function alunoJaConcluiuLocal(escola, nome) {
@@ -35,7 +32,6 @@ function alunoJaConcluiuLocal(escola, nome) {
 
 function registrarConclusaoLocal(motivo) {
   if (!escolaId || !aluno) return;
-
   try {
     const dados = lerConclusoesLocais();
     dados[chaveConclusao(escolaId, aluno)] = {
@@ -47,9 +43,15 @@ function registrarConclusaoLocal(motivo) {
       motivo: motivo || "Prova finalizada"
     };
     localStorage.setItem(CHAVE_CONCLUIDAS, JSON.stringify(dados));
-  } catch (e) {
-    // Se o armazenamento estiver bloqueado, a prova continua funcionando.
-  }
+  } catch (e) {}
+}
+
+function removerConclusaoLocal(escola, nome) {
+  try {
+    const dados = lerConclusoesLocais();
+    delete dados[chaveConclusao(escola, nome)];
+    localStorage.setItem(CHAVE_CONCLUIDAS, JSON.stringify(dados));
+  } catch (e) {}
 }
 
 function atualizarAvisoSegundaTentativa() {
@@ -62,11 +64,8 @@ function atualizarAvisoSegundaTentativa() {
 
   if (escolaSelecionada === "joao-prado" && nomeSelecionado && alunoJaConcluiuLocal(escolaSelecionada, nomeSelecionado)) {
     const registro = obterConclusaoLocal(escolaSelecionada, nomeSelecionado);
-    const quando = registro?.concluidaEm
-      ? new Date(registro.concluidaEm).toLocaleString("pt-BR")
-      : "anteriormente";
-
-    erro.textContent = `Esta avaliação já foi realizada por este aluno neste dispositivo (${quando}). Uma nova tentativa precisa ser liberada pelo professor.`;
+    const quando = registro?.concluidaEm ? new Date(registro.concluidaEm).toLocaleString("pt-BR") : "anteriormente";
+    erro.textContent = `Esta avaliação já foi registrada para este aluno (${quando}). Uma nova tentativa precisa ser liberada pelo professor.`;
     botao.disabled = true;
     botao.setAttribute("aria-disabled", "true");
     return;
@@ -76,10 +75,12 @@ function atualizarAvisoSegundaTentativa() {
   botao.removeAttribute("aria-disabled");
 }
 
-// Impede a segunda tentativa antes que a função normal de início seja executada.
+// Sem backend, mantém o bloqueio local. Com backend carregado, deixa o servidor
+// confirmar se o professor liberou uma nova tentativa.
 document.querySelector("#btn-iniciar")?.addEventListener("click", evento => {
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
   const nomeSelecionado = typeof alunoSelecionado !== "undefined" ? alunoSelecionado : "";
+  if (typeof validarInicioComServidor === "function") return;
 
   if (escolaSelecionada === "joao-prado" && nomeSelecionado && alunoJaConcluiuLocal(escolaSelecionada, nomeSelecionado)) {
     evento.preventDefault();
@@ -88,33 +89,13 @@ document.querySelector("#btn-iniciar")?.addEventListener("click", evento => {
   }
 }, true);
 
-// Atualiza o aviso assim que escola/aluno mudarem.
-document.querySelector("#escola-aluno")?.addEventListener("change", () => {
-  setTimeout(atualizarAvisoSegundaTentativa, 0);
-});
-
-document.querySelector("#busca-aluno")?.addEventListener("input", () => {
-  setTimeout(atualizarAvisoSegundaTentativa, 0);
-});
+document.querySelector("#escola-aluno")?.addEventListener("change", () => setTimeout(atualizarAvisoSegundaTentativa, 0));
+document.querySelector("#busca-aluno")?.addEventListener("input", () => setTimeout(atualizarAvisoSegundaTentativa, 0));
 
 const selecionarAlunoAntesDoBloqueio = selecionarAluno;
 selecionarAluno = function (nome) {
   selecionarAlunoAntesDoBloqueio(nome);
   atualizarAvisoSegundaTentativa();
-};
-
-// Marca como concluída qualquer tentativa que realmente chegar à finalização:
-// conclusão normal, tempo esgotado ou encerramento pelas 3 ocorrências.
-const finalizarProvaAntesDoBloqueio = finalizarProva;
-finalizarProva = async function (motivo) {
-  const escolaDaTentativa = escolaId;
-  const alunoDaTentativa = aluno;
-
-  await finalizarProvaAntesDoBloqueio(motivo);
-
-  if (escolaDaTentativa === "joao-prado" && alunoDaTentativa) {
-    registrarConclusaoLocal(motivo);
-  }
 };
 
 atualizarAvisoSegundaTentativa();

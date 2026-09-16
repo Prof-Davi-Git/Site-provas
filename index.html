@@ -4,129 +4,645 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prova Online | Prof. Davi</title>
-  <link rel="stylesheet" href="style.css?v=20260916-8">
+
+  <link rel="stylesheet" href="style.css?v=20260916-9">
+
+  <style>
+    /* MATERIAL DE CONSULTA — 16/09/2026 */
+
+    .material-consulta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .material-consulta .label-mini {
+      width: 100%;
+    }
+
+    .btn-material {
+      border: 1px solid #d8dce5;
+      background: #ffffff;
+      color: #222;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-material:hover {
+      background: #f3f5f8;
+    }
+
+    .painel-material {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: #eef1f5;
+      display: none;
+      flex-direction: column;
+    }
+
+    .painel-material.ativo {
+      display: flex;
+    }
+
+    .painel-material-topo {
+      min-height: 64px;
+      background: #ffffff;
+      border-bottom: 1px solid #d9dde5;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .painel-material-topo div {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .painel-material-topo small {
+      color: #666;
+    }
+
+    .btn-voltar-prova {
+      border: 0;
+      background: #111827;
+      color: white;
+      border-radius: 8px;
+      padding: 11px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .material-frame {
+      width: 100%;
+      flex: 1;
+      border: 0;
+      background: #fff;
+    }
+
+    @media (max-width: 700px) {
+      .painel-material-topo {
+        align-items: flex-start;
+      }
+
+      .material-consulta {
+        width: 100%;
+      }
+
+      .btn-material {
+        flex: 1;
+      }
+    }
+  </style>
+
+  <script>
+    // O arquivo anti-ocorrência usará esta variável.
+    window.materialConsultaAberto = false;
+  </script>
 </head>
+
 <body>
   <main class="app-shell">
+
     <section id="tela-inicial" class="card tela ativa">
       <div class="brand">PROVA ONLINE</div>
+
       <h1 id="titulo-avaliacao">Avaliação Online</h1>
-      <p class="subtitulo">Ambiente de avaliação do Prof. Davi</p>
+
+      <p class="subtitulo">
+        Ambiente de avaliação do Prof. Davi
+      </p>
 
       <div class="aviso-box">
         <strong>Antes de iniciar</strong>
-        <p id="info-prova">Selecione sua escola e seu nome para carregar a avaliação disponível.</p>
-        <p>Durante a avaliação, sair da aba, minimizar a janela ou abandonar a tela cheia gera uma ocorrência.</p>
-        <p><strong>Ao atingir 3 ocorrências, a prova é finalizada automaticamente.</strong></p>
+
+        <p id="info-prova">
+          Selecione sua escola e seu nome para carregar a avaliação disponível.
+        </p>
+
+        <p>
+          Durante a avaliação, sair da aba, minimizar a janela
+          ou abandonar a tela cheia gera uma ocorrência.
+        </p>
+
+        <p>
+          <strong>
+            Ao atingir 3 ocorrências, a prova é finalizada automaticamente.
+          </strong>
+        </p>
+
+        <p>
+          Os materiais de Front-End e Mobile poderão ser consultados
+          dentro da própria tela da prova.
+        </p>
       </div>
 
       <div class="identificacao-box">
         <h2>Identificação do aluno</h2>
-        <p class="identificacao-ajuda">Selecione sua escola e depois localize seu nome na lista da turma.</p>
+
+        <p class="identificacao-ajuda">
+          Selecione sua escola e depois localize seu nome na lista da turma.
+        </p>
 
         <label for="escola-aluno">Escola</label>
+
         <select id="escola-aluno">
           <option value="">Selecione sua escola</option>
-          <option value="maria-vera">EE Maria Vera Lombardi Siqueira</option>
-          <option value="joao-prado">EE Professor João Prado Margarido</option>
-          <option value="armando-gomes">EE Professor Armando Gomes de Araujo</option>
+
+          <option value="maria-vera">
+            EE Maria Vera Lombardi Siqueira
+          </option>
+
+          <option value="joao-prado">
+            EE Professor João Prado Margarido
+          </option>
+
+          <option value="armando-gomes">
+            EE Professor Armando Gomes de Araujo
+          </option>
         </select>
 
         <div id="seletor-aluno" class="seletor-aluno oculto">
+
           <label for="busca-aluno">Aluno</label>
+
           <div class="campo-busca-aluno">
-            <input id="busca-aluno" type="text" autocomplete="off" placeholder="Digite parte do seu nome para pesquisar" maxlength="120">
-            <span class="icone-busca" aria-hidden="true">⌕</span>
+
+            <input
+              id="busca-aluno"
+              type="text"
+              autocomplete="off"
+              placeholder="Digite parte do seu nome para pesquisar"
+              maxlength="120"
+            >
+
+            <span
+              class="icone-busca"
+              aria-hidden="true"
+            >
+              ⌕
+            </span>
+
           </div>
-          <div id="lista-alunos" class="lista-alunos" role="listbox" aria-label="Lista de alunos"></div>
-          <div id="aluno-selecionado" class="aluno-selecionado oculto"></div>
+
+          <div
+            id="lista-alunos"
+            class="lista-alunos"
+            role="listbox"
+            aria-label="Lista de alunos"
+          ></div>
+
+          <div
+            id="aluno-selecionado"
+            class="aluno-selecionado oculto"
+          ></div>
+
         </div>
 
-        <p id="erro-identificacao" class="erro" aria-live="polite"></p>
+        <p
+          id="erro-identificacao"
+          class="erro"
+          aria-live="polite"
+        ></p>
+
       </div>
 
-      <button id="btn-iniciar" class="btn btn-primary">Iniciar prova</button>
-      <p class="rodape-info">Ao iniciar, o cronômetro começa e o modo de prova é ativado.</p>
+      <button
+        id="btn-iniciar"
+        class="btn btn-primary"
+      >
+        Iniciar prova
+      </button>
+
+      <p class="rodape-info">
+        Ao iniciar, o cronômetro começa e o modo de prova é ativado.
+      </p>
+
     </section>
+
+
+    <!-- TELA DA PROVA -->
 
     <section id="tela-prova" class="tela">
+
       <header class="topbar card">
+
         <div class="identidade-prova">
-          <span class="label-mini">ALUNO</span>
+
+          <span class="label-mini">
+            ALUNO
+          </span>
+
           <strong id="nome-exibicao"></strong>
+
           <small id="escola-exibicao"></small>
+
         </div>
+
+
+        <!-- MATERIAL DE CONSULTA -->
+
+        <div class="material-consulta">
+
+          <span class="label-mini">
+            MATERIAL DE CONSULTA
+          </span>
+
+          <button
+            type="button"
+            class="btn-material"
+            data-material="front"
+          >
+            Front-End
+          </button>
+
+          <button
+            type="button"
+            class="btn-material"
+            data-material="mobile"
+          >
+            Mobile
+          </button>
+
+        </div>
+
+
         <div class="status-group">
+
           <div class="status-item">
-            <span class="label-mini">TEMPO</span>
-            <strong id="cronometro">00:00</strong>
+
+            <span class="label-mini">
+              TEMPO
+            </span>
+
+            <strong id="cronometro">
+              00:00
+            </strong>
+
           </div>
+
           <div class="status-item">
-            <span class="label-mini">SAÍDAS</span>
-            <strong id="contador-saidas">0/3</strong>
+
+            <span class="label-mini">
+              SAÍDAS
+            </span>
+
+            <strong id="contador-saidas">
+              0/3
+            </strong>
+
           </div>
+
         </div>
+
       </header>
 
+
       <section class="card prova-card">
+
         <div class="progresso-topo">
-          <span id="numero-questao">Questão</span>
-          <span id="percentual-progresso">0%</span>
+
+          <span id="numero-questao">
+            Questão
+          </span>
+
+          <span id="percentual-progresso">
+            0%
+          </span>
+
         </div>
-        <div class="barra"><div id="barra-progresso"></div></div>
+
+
+        <div class="barra">
+          <div id="barra-progresso"></div>
+        </div>
+
 
         <h2 id="texto-questao"></h2>
-        <div id="alternativas" class="alternativas"></div>
+
+
+        <div
+          id="alternativas"
+          class="alternativas"
+        ></div>
+
 
         <div class="acoes-prova">
-          <span id="mensagem-resposta" class="erro" aria-live="polite"></span>
-          <button id="btn-proxima" class="btn btn-primary">Próxima questão</button>
+
+          <span
+            id="mensagem-resposta"
+            class="erro"
+            aria-live="polite"
+          ></span>
+
+          <button
+            id="btn-proxima"
+            class="btn btn-primary"
+          >
+            Próxima questão
+          </button>
+
         </div>
+
       </section>
+
     </section>
 
-    <section id="tela-resultado" class="card tela">
-      <div id="resultado-icone" class="resultado-icone">✓</div>
-      <h1 id="resultado-titulo">Prova finalizada</h1>
-      <p id="resultado-aluno" class="subtitulo"></p>
-      <p id="resultado-escola" class="resultado-escola"></p>
 
-      <div class="placar">
-        <div><span>Acertos</span><strong id="total-acertos">0</strong></div>
-        <div><span>Tempo</span><strong id="tempo-final">00:00</strong></div>
-        <div><span>Ocorrências</span><strong id="saidas-final">0</strong></div>
+    <!-- RESULTADO -->
+
+    <section
+      id="tela-resultado"
+      class="card tela"
+    >
+
+      <div
+        id="resultado-icone"
+        class="resultado-icone"
+      >
+        ✓
       </div>
 
-      <h2>Seu resultado</h2>
-      <p class="resultado-nota">Você verá apenas se acertou ou errou cada questão. A resposta correta não é exibida.</p>
-      <div id="lista-resultado" class="lista-resultado"></div>
+      <h1 id="resultado-titulo">
+        Prova finalizada
+      </h1>
 
-      <div id="status-envio" class="status-envio">Resultado aguardando processamento.</div>
+      <p
+        id="resultado-aluno"
+        class="subtitulo"
+      ></p>
+
+      <p
+        id="resultado-escola"
+        class="resultado-escola"
+      ></p>
+
+
+      <div class="placar">
+
+        <div>
+          <span>Acertos</span>
+          <strong id="total-acertos">0</strong>
+        </div>
+
+        <div>
+          <span>Tempo</span>
+          <strong id="tempo-final">00:00</strong>
+        </div>
+
+        <div>
+          <span>Ocorrências</span>
+          <strong id="saidas-final">0</strong>
+        </div>
+
+      </div>
+
+
+      <h2>Seu resultado</h2>
+
+      <p class="resultado-nota">
+        Você verá apenas se acertou ou errou cada questão.
+        A resposta correta não é exibida.
+      </p>
+
+      <div
+        id="lista-resultado"
+        class="lista-resultado"
+      ></div>
+
+      <div
+        id="status-envio"
+        class="status-envio"
+      >
+        Resultado aguardando processamento.
+      </div>
+
     </section>
+
   </main>
 
-  <div id="modal-ocorrencia" class="modal" aria-hidden="true">
+
+  <!-- PAINEL DE MATERIAL -->
+
+  <section
+    id="painel-material"
+    class="painel-material"
+    aria-hidden="true"
+  >
+
+    <header class="painel-material-topo">
+
+      <div>
+
+        <strong id="titulo-material">
+          Material de consulta
+        </strong>
+
+        <small>
+          Consulte os slides sem sair da prova.
+        </small>
+
+      </div>
+
+      <button
+        type="button"
+        id="btn-voltar-prova"
+        class="btn-voltar-prova"
+      >
+        Voltar para a prova
+      </button>
+
+    </header>
+
+
+    <iframe
+      id="iframe-material"
+      class="material-frame"
+      title="Material de consulta"
+      src=""
+      allowfullscreen
+    ></iframe>
+
+  </section>
+
+
+  <!-- MODAL DE OCORRÊNCIA -->
+
+  <div
+    id="modal-ocorrencia"
+    class="modal"
+    aria-hidden="true"
+  >
+
     <div class="modal-card">
-      <div class="modal-alerta">!</div>
-      <h2>Ocorrência registrada</h2>
-      <p>Você saiu do modo de prova.</p>
-      <strong id="modal-contador">Ocorrência 1 de 3</strong>
-      <p id="modal-detalhe" class="modal-detalhe"></p>
-      <button id="btn-continuar" class="btn btn-primary">Continuar prova</button>
+
+      <div class="modal-alerta">
+        !
+      </div>
+
+      <h2>
+        Ocorrência registrada
+      </h2>
+
+      <p>
+        Você saiu do modo de prova.
+      </p>
+
+      <strong id="modal-contador">
+        Ocorrência 1 de 3
+      </strong>
+
+      <p
+        id="modal-detalhe"
+        class="modal-detalhe"
+      ></p>
+
+      <button
+        id="btn-continuar"
+        class="btn btn-primary"
+      >
+        Continuar prova
+      </button>
+
     </div>
+
   </div>
 
-  <iframe name="envio-forms" id="envio-forms" class="iframe-oculto" title="Envio de respostas"></iframe>
 
-  <script src="script.js?v=20260916-8"></script>
-  <script src="forms-config.js?v=20260916-8"></script>
-  <script src="forms-envio.js?v=20260916-8"></script>
-  <script src="questoes-frontend.js?v=20260916-8"></script>
-  <script src="questoes-mobile.js?v=20260916-8"></script>
-  <script src="prova-joao-prado.js?v=20260916-8"></script>
-  <script src="recuperacao.js?v=20260916-8"></script>
-  <script src="bloqueio-local.js?v=20260916-8"></script>
-  <script src="backend-apps-script.js?v=20260916-8"></script>
-  <script src="envio-oficial.js?v=20260916-8"></script>
+  <iframe
+    name="envio-forms"
+    id="envio-forms"
+    class="iframe-oculto"
+    title="Envio de respostas"
+  ></iframe>
+
+
+  <!-- ARQUIVOS DO SISTEMA -->
+
+  <script src="script.js?v=20260916-9"></script>
+  <script src="forms-config.js?v=20260916-9"></script>
+  <script src="forms-envio.js?v=20260916-9"></script>
+  <script src="questoes-frontend.js?v=20260916-9"></script>
+  <script src="questoes-mobile.js?v=20260916-9"></script>
+  <script src="prova-joao-prado.js?v=20260916-9"></script>
+  <script src="recuperacao.js?v=20260916-9"></script>
+  <script src="bloqueio-local.js?v=20260916-9"></script>
+  <script src="backend-apps-script.js?v=20260916-9"></script>
+  <script src="envio-oficial.js?v=20260916-9"></script>
+
+
+  <!-- CONTROLE DO MATERIAL -->
+
+  <script>
+
+    const LINKS_MATERIAL = {
+
+      front:
+        "https://seducsp.my.canva.site/front-end",
+
+      mobile:
+        "https://seducsp.my.canva.site/mobile"
+
+    };
+
+
+    const NOMES_MATERIAL = {
+
+      front:
+        "Material de Front-End",
+
+      mobile:
+        "Material de Mobile"
+
+    };
+
+
+    const painelMaterial =
+      document.querySelector("#painel-material");
+
+    const iframeMaterial =
+      document.querySelector("#iframe-material");
+
+    const tituloMaterial =
+      document.querySelector("#titulo-material");
+
+    const btnVoltarProva =
+      document.querySelector("#btn-voltar-prova");
+
+
+    function abrirMaterial(tipo) {
+
+      if (!LINKS_MATERIAL[tipo]) {
+        return;
+      }
+
+      window.materialConsultaAberto = true;
+
+      tituloMaterial.textContent =
+        NOMES_MATERIAL[tipo];
+
+      iframeMaterial.src =
+        LINKS_MATERIAL[tipo];
+
+      painelMaterial.classList.add("ativo");
+
+      painelMaterial.setAttribute(
+        "aria-hidden",
+        "false"
+      );
+
+    }
+
+
+    function fecharMaterial() {
+
+      painelMaterial.classList.remove("ativo");
+
+      painelMaterial.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+      iframeMaterial.src = "";
+
+      window.materialConsultaAberto = false;
+
+      window.focus();
+
+    }
+
+
+    document
+      .querySelectorAll("[data-material]")
+      .forEach(botao => {
+
+        botao.addEventListener(
+          "click",
+          function () {
+
+            abrirMaterial(
+              this.dataset.material
+            );
+
+          }
+        );
+
+      });
+
+
+    btnVoltarProva.addEventListener(
+      "click",
+      fecharMaterial
+    );
+
+  </script>
+
 </body>
 </html>

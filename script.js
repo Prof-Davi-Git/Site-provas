@@ -484,29 +484,27 @@ async function finalizarProva(motivo) {
 }
 
 
-// Monitoramento do modo de prova.
-// O material de consulta pode receber foco dentro do iframe
-// sem gerar ocorrência.
-
-// Trocar de aba / minimizar continua sendo ocorrência.
+// ATUALIZAÇÃO 17/09/2026 — consulta autorizada em nova aba.
+// O Canva recusa carregamento dentro de iframe. Enquanto o painel de material
+// estiver ativo, a saída necessária para abrir os slides não gera ocorrência.
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden) {
-    registrarOcorrencia("Aba ou janela ocultada");
-  }
+  if (!document.hidden) return;
+  if (window.materialConsultaAberto === true) return;
+
+  registrarOcorrencia("Aba ou janela ocultada");
 });
 
-// Clicar dentro do Canva incorporado NÃO conta.
-// Perder o foco fora do material continua contando.
 window.addEventListener("blur", () => {
-  if (window.materialConsultaAberto === true) {
-    return;
-  }
+  if (window.materialConsultaAberto === true) return;
 
   registrarOcorrencia("Janela perdeu o foco");
 });
 
-// Sair realmente da tela cheia continua contando.
+// A abertura do material pode retirar a tela cheia. O botão "Voltar para a prova"
+// solicita a tela cheia novamente antes de reativar o monitoramento.
 document.addEventListener("fullscreenchange", () => {
+  if (window.materialConsultaAberto === true) return;
+
   if (provaAtiva && !document.fullscreenElement) {
     registrarOcorrencia("Saiu da tela cheia");
   }

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prova Online | Prof. Davi</title>
 
-  <link rel="stylesheet" href="style.css?v=20260917-1">
+  <link rel="stylesheet" href="style.css?v=20260917-2">
 
   <style>
     /* MATERIAL DE CONSULTA — 16/09/2026 */
@@ -80,11 +80,41 @@
       white-space: nowrap;
     }
 
-    .material-frame {
-      width: 100%;
+    /* ATUALIZAÇÃO 17/09/2026 — o Canva bloqueia abertura dentro de iframe. */
+    .material-externo {
       flex: 1;
-      border: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .material-externo-caixa {
+      width: min(520px, 100%);
       background: #fff;
+      border: 1px solid #d9dde5;
+      border-radius: 16px;
+      padding: 28px;
+      text-align: center;
+      box-shadow: 0 16px 40px rgba(17, 24, 39, 0.12);
+    }
+
+    .material-externo-caixa p {
+      margin: 0 0 18px;
+      color: #4b5563;
+      line-height: 1.55;
+    }
+
+    .link-material-externo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 11px 18px;
+      border-radius: 9px;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 700;
+      text-decoration: none;
     }
 
     @media (max-width: 700px) {
@@ -462,13 +492,24 @@
     </header>
 
 
-    <iframe
-      id="iframe-material"
-      class="material-frame"
-      title="Material de consulta"
-      src=""
-      allowfullscreen
-    ></iframe>
+    <div class="material-externo">
+      <div class="material-externo-caixa">
+        <p>
+          O material foi aberto em uma nova aba porque o Canva bloqueia a exibição dentro do site.
+          Ao terminar a consulta, volte para esta aba e clique em “Voltar para a prova”.
+        </p>
+
+        <a
+          id="link-material-externo"
+          class="link-material-externo"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Abrir material novamente
+        </a>
+      </div>
+    </div>
 
   </section>
 
@@ -526,16 +567,16 @@
 
   <!-- ARQUIVOS DO SISTEMA -->
 
-  <script src="script.js?v=20260917-1"></script>
-  <script src="forms-config.js?v=20260917-1"></script>
-  <script src="forms-envio.js?v=20260917-1"></script>
-  <script src="questoes-frontend.js?v=20260917-1"></script>
-  <script src="questoes-mobile.js?v=20260917-1"></script>
-  <script src="prova-joao-prado.js?v=20260917-1"></script>
-  <script src="recuperacao.js?v=20260917-1"></script>
-  <script src="bloqueio-local.js?v=20260917-1"></script>
-  <script src="backend-apps-script.js?v=20260917-1"></script>
-  <script src="envio-oficial.js?v=20260917-1"></script>
+  <script src="script.js?v=20260917-2"></script>
+  <script src="forms-config.js?v=20260917-2"></script>
+  <script src="forms-envio.js?v=20260917-2"></script>
+  <script src="questoes-frontend.js?v=20260917-2"></script>
+  <script src="questoes-mobile.js?v=20260917-2"></script>
+  <script src="prova-joao-prado.js?v=20260917-2"></script>
+  <script src="recuperacao.js?v=20260917-2"></script>
+  <script src="bloqueio-local.js?v=20260917-2"></script>
+  <script src="backend-apps-script.js?v=20260917-2"></script>
+  <script src="envio-oficial.js?v=20260917-2"></script>
 
 
   <!-- CONTROLE DO MATERIAL -->
@@ -567,8 +608,8 @@
     const painelMaterial =
       document.querySelector("#painel-material");
 
-    const iframeMaterial =
-      document.querySelector("#iframe-material");
+    const linkMaterialExterno =
+      document.querySelector("#link-material-externo");
 
     const tituloMaterial =
       document.querySelector("#titulo-material");
@@ -588,8 +629,11 @@
       tituloMaterial.textContent =
         NOMES_MATERIAL[tipo];
 
-      iframeMaterial.src =
+      linkMaterialExterno.href =
         LINKS_MATERIAL[tipo];
+
+      linkMaterialExterno.textContent =
+        `Abrir ${NOMES_MATERIAL[tipo]} novamente`;
 
       painelMaterial.classList.add("ativo");
 
@@ -598,10 +642,24 @@
         "false"
       );
 
+      const abaMaterial =
+        window.open(LINKS_MATERIAL[tipo], "_blank");
+
+      if (abaMaterial) {
+        try {
+          abaMaterial.opener = null;
+        } catch (erro) {}
+      }
+
     }
 
 
-    function fecharMaterial() {
+    async function fecharMaterial() {
+
+      // O clique do aluno permite solicitar novamente a tela cheia.
+      try {
+        await entrarTelaCheia();
+      } catch (erro) {}
 
       painelMaterial.classList.remove("ativo");
 
@@ -610,14 +668,12 @@
         "true"
       );
 
-      iframeMaterial.src = "";
-
       window.focus();
 
-      // Pequeno atraso para a volta do foco não ser interpretada como saída.
+      // Reativa o anti-cola somente depois que a prova recupera o foco.
       setTimeout(() => {
         window.materialConsultaAberto = false;
-      }, 300);
+      }, 500);
 
     }
 

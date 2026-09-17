@@ -117,6 +117,7 @@ let provaAtiva = false;
 let finalizando = false;
 let inicioTimestamp = null;
 let ultimaOcorrenciaTimestamp = 0;
+let encerramentoSolicitado = false;
 
 const $ = (seletor) => document.querySelector(seletor);
 const telas = document.querySelectorAll(".tela");
@@ -316,6 +317,7 @@ async function iniciarProva() {
   $("#nome-exibicao").textContent = aluno;
   $("#escola-exibicao").textContent = escolaNome;
   mostrarTela("#tela-prova");
+  encerramentoSolicitado = false;
   provaAtiva = true;
   inicioTimestamp = Date.now();
   renderizarQuestao();
@@ -339,8 +341,30 @@ function proximaQuestao() {
   renderizarQuestao();
 }
 
+function mostrarEncerramentoImediato(motivo) {
+  provaAtiva = false;
+  clearInterval(timer);
+
+  $("#modal-ocorrencia").classList.remove("ativo");
+  $("#modal-ocorrencia").setAttribute("aria-hidden", "true");
+
+  $("#resultado-aluno").textContent = aluno;
+  $("#resultado-escola").textContent = escolaNome;
+  $("#resultado-titulo").textContent = "Prova encerrada automaticamente";
+  $("#resultado-icone").textContent = "!";
+  $("#total-acertos").textContent = "Aguardando";
+  $("#tempo-final").textContent = formatarTempo(tempoUtilizado());
+  $("#saidas-final").textContent = ocorrencias.length;
+  $("#lista-resultado").innerHTML =
+    '<div class="resultado-item"><span>O limite de ocorrências foi atingido. A prova está sendo finalizada.</span></div>';
+  $("#status-envio").textContent =
+    "Enviando o resultado ao professor. Não feche esta página.";
+
+  mostrarTela("#tela-resultado");
+}
+
 function registrarOcorrencia(tipo) {
-  if (!provaAtiva || finalizando) return;
+  if (!provaAtiva || finalizando || encerramentoSolicitado) return;
 
   const agora = Date.now();
   if (agora - ultimaOcorrenciaTimestamp < 1200) return;
@@ -356,7 +380,21 @@ function registrarOcorrencia(tipo) {
   $("#contador-saidas").textContent = `${ocorrencias.length}/${LIMITE_OCORRENCIAS}`;
 
   if (ocorrencias.length >= LIMITE_OCORRENCIAS) {
-    finalizarProva(`Limite de ${LIMITE_OCORRENCIAS} ocorrências atingido`);
+    const motivo = `Limite de ${LIMITE_OCORRENCIAS} ocorrências atingido`;
+
+    // Bloqueia a prova imediatamente antes de qualquer operação assíncrona.
+    encerramentoSolicitado = true;
+    mostrarEncerramentoImediato(motivo);
+
+    Promise.resolve()
+      .then(() => finalizarProva(motivo))
+      .catch(() => {
+        $("#total-acertos").textContent = "Pendente";
+        $("#lista-resultado").innerHTML =
+          '<div class="resultado-item"><span>O resultado ficou salvo neste computador e será enviado quando a conexão voltar.</span></div>';
+        $("#status-envio").textContent =
+          "Não foi possível concluir o envio agora. Mantenha esta página aberta ou reconecte a internet.";
+      });
     return;
   }
 
@@ -367,6 +405,8 @@ function registrarOcorrencia(tipo) {
 }
 
 async function continuarProva() {
+  if (!provaAtiva || finalizando || encerramentoSolicitado) return;
+
   $("#modal-ocorrencia").classList.remove("ativo");
   $("#modal-ocorrencia").setAttribute("aria-hidden", "true");
   await entrarTelaCheia();

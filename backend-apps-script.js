@@ -79,6 +79,10 @@ function registrarConclusaoLocalComDados(payload, motivo) {
 }
 
 async function verificarAlunoNoServidor(nome) {
+  if (typeof alunoEhTeste === "function" && alunoEhTeste(nome)) {
+    return { ok: true, bloqueado: false, modoTeste: true };
+  }
+
   return chamarAppsScriptJSONP({
     acao: "verificar",
     escola: "joao-prado",
@@ -90,6 +94,13 @@ async function validarAlunoSelecionadoServidor(nome) {
   const botao = document.querySelector("#btn-iniciar");
   const erro = document.querySelector("#erro-identificacao");
   if (!botao || !erro || !nome) return;
+
+  if (typeof alunoEhTeste === "function" && alunoEhTeste(nome)) {
+    erro.textContent = "Modo de teste: esta tentativa não será registrada.";
+    botao.disabled = false;
+    botao.removeAttribute("aria-disabled");
+    return;
+  }
 
   botao.disabled = true;
   erro.textContent = "Verificando se esta avaliação já foi realizada...";
@@ -145,6 +156,13 @@ async function validarInicioComServidor() {
 
   if (!nomeSelecionado || !escolas["joao-prado"].alunos.includes(nomeSelecionado)) {
     erro.textContent = "Pesquise e selecione seu nome na lista da turma.";
+    return;
+  }
+
+  if (typeof alunoEhTeste === "function" && alunoEhTeste(nomeSelecionado)) {
+    erro.textContent = "";
+    botao.disabled = false;
+    iniciarProvaSemServidor();
     return;
   }
 
@@ -318,6 +336,11 @@ async function processarResultadoServidor(payload, resultado) {
 }
 
 finalizarProva = async function (motivo) {
+  if (typeof alunoEhTeste === "function" && alunoEhTeste()) {
+    await finalizarProvaTesteLocal(motivo);
+    return;
+  }
+
   if (finalizando) return;
   finalizando = true;
   provaAtiva = false;

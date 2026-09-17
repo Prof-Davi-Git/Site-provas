@@ -1,4 +1,4 @@
-// BACKEND PRIVADO — GOOGLE APPS SCRIPT — EE PROFESSOR JOÃO PRADO MARGARIDO
+// BACKEND PRIVADO — GOOGLE APPS SCRIPT — JOÃO PRADO E MARIA VERA
 const APPS_SCRIPT_JOAO_PRADO = "https://script.google.com/macros/s/AKfycbyr_lU3SgzvkExYJFrsJChdJ72g9PZXBXPpJnT2N0CcSN3R_F2j4RoWZFzzYnf-aztT/exec";
 const CHAVE_CORRECAO_PENDENTE = "site-provas:correcao-pendente:v1";
 
@@ -81,14 +81,19 @@ function registrarConclusaoLocalComDados(payload, motivo) {
   } catch (e) {}
 }
 
-async function verificarAlunoNoServidor(nome) {
+async function verificarAlunoNoServidor(nome, escolaSelecionada = "") {
   if (typeof alunoEhTeste === "function" && alunoEhTeste(nome)) {
     return { ok: true, bloqueado: false, modoTeste: true };
   }
 
+  const escolaParaConsulta =
+    escolaSelecionada ||
+    document.querySelector("#escola-aluno")?.value ||
+    (typeof escolaId !== "undefined" ? escolaId : "");
+
   return chamarAppsScriptJSONP({
     acao: "verificar",
-    escola: "joao-prado",
+    escola: escolaParaConsulta,
     aluno: nome
   });
 }
@@ -96,7 +101,8 @@ async function verificarAlunoNoServidor(nome) {
 async function validarAlunoSelecionadoServidor(nome) {
   const botao = document.querySelector("#btn-iniciar");
   const erro = document.querySelector("#erro-identificacao");
-  if (!botao || !erro || !nome) return;
+  const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
+  if (!botao || !erro || !nome || !["joao-prado", "maria-vera"].includes(escolaSelecionada)) return;
 
   if (typeof alunoEhTeste === "function" && alunoEhTeste(nome)) {
     erro.textContent = "Modo de teste: esta tentativa não será registrada.";
@@ -109,13 +115,13 @@ async function validarAlunoSelecionadoServidor(nome) {
   erro.textContent = "Verificando se esta avaliação já foi realizada...";
 
   try {
-    const resposta = await verificarAlunoNoServidor(nome);
+    const resposta = await verificarAlunoNoServidor(nome, escolaSelecionada);
     if (!resposta?.ok) throw new Error(resposta?.erro || "Falha na validação.");
 
     if (resposta.bloqueado) {
       registrarConclusaoLocalComDados({
-        escolaId: "joao-prado",
-        escolaNome: escolas["joao-prado"].nome,
+        escolaId: escolaSelecionada,
+        escolaNome: escolas[escolaSelecionada].nome,
         aluno: nome,
         motivo: "Bloqueado pelo servidor"
       }, "Bloqueado pelo servidor");
@@ -125,12 +131,12 @@ async function validarAlunoSelecionadoServidor(nome) {
     }
 
     // Se o professor liberou pelo Apps Script, remove um bloqueio local antigo.
-    removerConclusaoLocal("joao-prado", nome);
+    removerConclusaoLocal(escolaSelecionada, nome);
     erro.textContent = "";
     botao.disabled = false;
     botao.removeAttribute("aria-disabled");
   } catch (e) {
-    if (alunoJaConcluiuLocal("joao-prado", nome)) {
+    if (alunoJaConcluiuLocal(escolaSelecionada, nome)) {
       atualizarAvisoSegundaTentativa();
     } else {
       erro.textContent = "Não foi possível validar a tentativa agora. Verifique a internet antes de iniciar.";
@@ -142,7 +148,8 @@ async function validarAlunoSelecionadoServidor(nome) {
 const selecionarAlunoAntesDoServidor = selecionarAluno;
 selecionarAluno = function (nome) {
   selecionarAlunoAntesDoServidor(nome);
-  if (document.querySelector("#escola-aluno")?.value === "joao-prado") {
+  const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
+  if (["joao-prado", "maria-vera"].includes(escolaSelecionada)) {
     validarAlunoSelecionadoServidor(nome);
   }
 };
@@ -155,9 +162,9 @@ async function validarInicioComServidor() {
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
   const nomeSelecionado = alunoSelecionado || "";
 
-  if (escolaSelecionada !== "joao-prado") return;
+  if (!["joao-prado", "maria-vera"].includes(escolaSelecionada)) return;
 
-  if (!nomeSelecionado || !escolas["joao-prado"].alunos.includes(nomeSelecionado)) {
+  if (!nomeSelecionado || !escolas[escolaSelecionada].alunos.includes(nomeSelecionado)) {
     erro.textContent = "Pesquise e selecione seu nome na lista da turma.";
     return;
   }
@@ -174,13 +181,13 @@ async function validarInicioComServidor() {
   erro.textContent = "Validando sua tentativa...";
 
   try {
-    const resposta = await verificarAlunoNoServidor(nomeSelecionado);
+    const resposta = await verificarAlunoNoServidor(nomeSelecionado, escolaSelecionada);
     if (!resposta?.ok) throw new Error(resposta?.erro || "Falha na validação.");
 
     if (resposta.bloqueado) {
       registrarConclusaoLocalComDados({
-        escolaId: "joao-prado",
-        escolaNome: escolas["joao-prado"].nome,
+        escolaId: escolaSelecionada,
+        escolaNome: escolas[escolaSelecionada].nome,
         aluno: nomeSelecionado,
         motivo: "Bloqueado pelo servidor"
       }, "Bloqueado pelo servidor");
@@ -189,7 +196,7 @@ async function validarInicioComServidor() {
       return;
     }
 
-    removerConclusaoLocal("joao-prado", nomeSelecionado);
+    removerConclusaoLocal(escolaSelecionada, nomeSelecionado);
     erro.textContent = "";
     botao.disabled = false;
     iniciarProvaSemServidor();
@@ -204,7 +211,7 @@ async function validarInicioComServidor() {
 // Intercepta o início antes da função antiga do arquivo-base.
 document.querySelector("#btn-iniciar")?.addEventListener("click", evento => {
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
-  if (escolaSelecionada !== "joao-prado") return;
+  if (!["joao-prado", "maria-vera"].includes(escolaSelecionada)) return;
   evento.preventDefault();
   evento.stopImmediatePropagation();
   validarInicioComServidor();
@@ -344,7 +351,7 @@ finalizarProva = async function (motivo) {
     return;
   }
 
-  if (escolaId !== "joao-prado") {
+  if (!["joao-prado", "maria-vera"].includes(escolaId)) {
     await finalizarProvaLocalAntesDoBackend(motivo);
     if (typeof registrarConclusaoLocal === "function") registrarConclusaoLocal(motivo);
     return;
@@ -388,7 +395,8 @@ async function processarCorrecaoPendente() {
 
 window.addEventListener("online", () => {
   processarCorrecaoPendente();
-  if (alunoSelecionado && document.querySelector("#escola-aluno")?.value === "joao-prado") {
+  const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
+  if (alunoSelecionado && ["joao-prado", "maria-vera"].includes(escolaSelecionada)) {
     validarAlunoSelecionadoServidor(alunoSelecionado);
   }
 });

@@ -200,21 +200,6 @@ document.querySelector("#escola-aluno")?.addEventListener("change", atualizarPro
 document.querySelector("#btn-iniciar")?.addEventListener("click", function (evento) {
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
 
-  const nomeSelecionado = typeof alunoSelecionado !== "undefined" ? alunoSelecionado : "";
-
-  if (
-    escolaSelecionada === "maria-vera" &&
-    nomeSelecionado
-  ) {
-    evento.preventDefault();
-    evento.stopImmediatePropagation();
-    const erro = document.querySelector("#erro-identificacao");
-    if (erro) {
-      erro.textContent = "A aplicação oficial da Maria Vera ainda precisa ter a correção e o formulário configurados pelo professor.";
-    }
-    return;
-  }
-
   if (escolaSelecionada && !["joao-prado", "maria-vera"].includes(escolaSelecionada)) {
     evento.preventDefault();
     evento.stopImmediatePropagation();

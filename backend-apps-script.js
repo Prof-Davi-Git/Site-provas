@@ -64,6 +64,8 @@ function removerCorrecaoPendente() {
 }
 
 function registrarConclusaoLocalComDados(payload, motivo) {
+  if (typeof alunoEhTeste === "function" && alunoEhTeste(payload?.aluno)) return;
+
   try {
     const dados = lerConclusoesLocais();
     dados[chaveConclusao(payload.escolaId, payload.aluno)] = {

@@ -1,7 +1,8 @@
 // AVALIAÇÕES POR ESCOLA — ATUALIZAÇÃO 17/09/2026
-// João Prado: Front-End + Mobile. Maria Vera: prova única com 40 questões.
+// João Prado: Front-End + Mobile. Maria Vera e Armando Gomes: provas únicas com 40 questões.
 const TEMPO_JOAO_PRADO_SEGUNDOS = 60 * 60;
 const TEMPO_MARIA_VERA_SEGUNDOS = 60 * 60;
+const TEMPO_ARMANDO_GOMES_SEGUNDOS = 60 * 60;
 
 const PROVA_MARIA_VERA = {
   provaId: "maria-vera-versionamento-mensageria-banco-3b-2026-v1",
@@ -9,6 +10,14 @@ const PROVA_MARIA_VERA = {
   info: "A prova possui 40 questões de Versionamento, Mensageria e Banco de Dados, misturadas entre si. Tempo máximo: 60 minutos. A ordem das questões é personalizada para cada aluno e os dois materiais podem ser consultados.",
   materiais: ["versionamento", "banco"],
   obterQuestoes: () => [...QUESTOES_VERSIONAMENTO, ...QUESTOES_BANCO_DADOS]
+};
+
+const PROVA_ARMANDO_GOMES = {
+  provaId: "armando-gomes-carreiras-redes-3b-2026-v1",
+  titulo: "Avaliação de Carreiras e Redes",
+  info: "A prova possui 40 questões de Carreiras e Redes, misturadas entre si. Tempo máximo: 60 minutos. A ordem das questões e das alternativas é personalizada para cada aluno. Os dois materiais podem ser consultados ao lado da prova.",
+  materiais: ["carreiras", "redes"],
+  obterQuestoes: () => [...QUESTOES_CARREIRAS, ...QUESTOES_REDES]
 };
 
 let avaliacaoIdAtual = "";
@@ -49,6 +58,22 @@ function misturarQuestoes(lista, chave = "") {
   return copia;
 }
 
+function misturarAlternativasDaQuestao(questao, chave) {
+  const pares = questao.alternativas.map((texto, indiceOriginal) => ({ texto, indiceOriginal }));
+  const aleatorio = geradorAleatorio(hashDaChave(`${chave}|${questao.id}|alternativas`));
+
+  for (let i = pares.length - 1; i > 0; i--) {
+    const j = Math.floor(aleatorio() * (i + 1));
+    [pares[i], pares[j]] = [pares[j], pares[i]];
+  }
+
+  return {
+    ...questao,
+    alternativas: pares.map(item => item.texto),
+    ordemAlternativas: pares.map(item => item.indiceOriginal)
+  };
+}
+
 function limparGabaritoAtivo() {
   Object.keys(gabaritoDemo).forEach(chave => delete gabaritoDemo[chave]);
 }
@@ -65,7 +90,9 @@ function configurarMateriais(tipos = []) {
     front: "Front-End",
     mobile: "Mobile",
     versionamento: "Versionamento",
-    banco: "Banco de Dados"
+    banco: "Banco de Dados",
+    carreiras: "Carreiras",
+    redes: "Redes"
   };
 
   botoes.forEach((botao, indice) => {
@@ -149,13 +176,28 @@ function carregarProvaMariaVera() {
   );
 }
 
+function carregarProvaArmandoGomes() {
+  avaliacaoIdAtual = "armando-gomes-prova-unica";
+  definirProvaIdAtual(PROVA_ARMANDO_GOMES.provaId);
+  aplicarQuestoes(PROVA_ARMANDO_GOMES.obterQuestoes());
+  configurarMateriais(PROVA_ARMANDO_GOMES.materiais);
+  atualizarInterfaceProva(
+    PROVA_ARMANDO_GOMES.titulo,
+    PROVA_ARMANDO_GOMES.info,
+    TEMPO_ARMANDO_GOMES_SEGUNDOS
+  );
+}
+
 function prepararProvaParaAluno(escolaSelecionada, nomeAluno) {
   if (!questoesBaseAvaliacao.length || !nomeAluno) return;
 
   const chave = `${PROVA_ID_ATUAL}|${escolaSelecionada}|${normalizarTexto(nomeAluno)}`;
   if (ordemPreparadaParaAluno === chave) return;
 
-  const personalizadas = misturarQuestoes(questoesBaseAvaliacao, chave);
+  let personalizadas = misturarQuestoes(questoesBaseAvaliacao, chave);
+  if (escolaSelecionada === "armando-gomes") {
+    personalizadas = personalizadas.map(questao => misturarAlternativasDaQuestao(questao, chave));
+  }
   questoes.splice(0, questoes.length, ...personalizadas);
   indiceAtual = 0;
   respostas = {};
@@ -174,6 +216,11 @@ function atualizarProvaDaEscola() {
 
   if (escolaSelecionada === "maria-vera") {
     carregarProvaMariaVera();
+    return;
+  }
+
+  if (escolaSelecionada === "armando-gomes") {
+    carregarProvaArmandoGomes();
     return;
   }
 
@@ -200,7 +247,7 @@ document.querySelector("#escola-aluno")?.addEventListener("change", atualizarPro
 document.querySelector("#btn-iniciar")?.addEventListener("click", function (evento) {
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
 
-  if (escolaSelecionada && !["joao-prado", "maria-vera"].includes(escolaSelecionada)) {
+  if (escolaSelecionada && !["joao-prado", "maria-vera", "armando-gomes"].includes(escolaSelecionada)) {
     evento.preventDefault();
     evento.stopImmediatePropagation();
     const erro = document.querySelector("#erro-identificacao");

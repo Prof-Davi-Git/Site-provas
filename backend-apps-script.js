@@ -1,4 +1,4 @@
-// BACKEND PRIVADO — GOOGLE APPS SCRIPT — JOÃO PRADO E MARIA VERA
+// BACKEND PRIVADO — GOOGLE APPS SCRIPT — TRÊS ESCOLAS
 const APPS_SCRIPT_JOAO_PRADO = "https://script.google.com/macros/s/AKfycbyr_lU3SgzvkExYJFrsJChdJ72g9PZXBXPpJnT2N0CcSN3R_F2j4RoWZFzzYnf-aztT/exec";
 const CHAVE_CORRECAO_PENDENTE = "site-provas:correcao-pendente:v1";
 
@@ -102,7 +102,7 @@ async function validarAlunoSelecionadoServidor(nome) {
   const botao = document.querySelector("#btn-iniciar");
   const erro = document.querySelector("#erro-identificacao");
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
-  if (!botao || !erro || !nome || !["joao-prado", "maria-vera"].includes(escolaSelecionada)) return;
+  if (!botao || !erro || !nome || !["joao-prado", "maria-vera", "armando-gomes"].includes(escolaSelecionada)) return;
 
   if (typeof alunoEhTeste === "function" && alunoEhTeste(nome)) {
     erro.textContent = "Modo de teste: esta tentativa não será registrada.";
@@ -149,7 +149,7 @@ const selecionarAlunoAntesDoServidor = selecionarAluno;
 selecionarAluno = function (nome) {
   selecionarAlunoAntesDoServidor(nome);
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
-  if (["joao-prado", "maria-vera"].includes(escolaSelecionada)) {
+  if (["joao-prado", "maria-vera", "armando-gomes"].includes(escolaSelecionada)) {
     validarAlunoSelecionadoServidor(nome);
   }
 };
@@ -162,7 +162,7 @@ async function validarInicioComServidor() {
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
   const nomeSelecionado = alunoSelecionado || "";
 
-  if (!["joao-prado", "maria-vera"].includes(escolaSelecionada)) return;
+  if (!["joao-prado", "maria-vera", "armando-gomes"].includes(escolaSelecionada)) return;
 
   if (!nomeSelecionado || !escolas[escolaSelecionada].alunos.includes(nomeSelecionado)) {
     erro.textContent = "Pesquise e selecione seu nome na lista da turma.";
@@ -211,7 +211,7 @@ async function validarInicioComServidor() {
 // Intercepta o início antes da função antiga do arquivo-base.
 document.querySelector("#btn-iniciar")?.addEventListener("click", evento => {
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
-  if (!["joao-prado", "maria-vera"].includes(escolaSelecionada)) return;
+  if (!["joao-prado", "maria-vera", "armando-gomes"].includes(escolaSelecionada)) return;
   evento.preventDefault();
   evento.stopImmediatePropagation();
   validarInicioComServidor();
@@ -235,6 +235,7 @@ function montarPayloadServidor(motivo) {
     tentativaId: tentativaIdAtual(),
     respostas: { ...respostas },
     ordemQuestoes: questoes.map(q => q.id),
+    temposQuestoes: typeof obterTemposQuestoes === "function" ? obterTemposQuestoes() : {},
     ocorrencias: ocorrenciasTexto(),
     tempo: formatarTempo(tempoUtilizado()),
     motivo,
@@ -351,7 +352,7 @@ finalizarProva = async function (motivo) {
     return;
   }
 
-  if (!["joao-prado", "maria-vera"].includes(escolaId)) {
+  if (!["joao-prado", "maria-vera", "armando-gomes"].includes(escolaId)) {
     await finalizarProvaLocalAntesDoBackend(motivo);
     if (typeof registrarConclusaoLocal === "function") registrarConclusaoLocal(motivo);
     return;
@@ -396,7 +397,7 @@ async function processarCorrecaoPendente() {
 window.addEventListener("online", () => {
   processarCorrecaoPendente();
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
-  if (alunoSelecionado && ["joao-prado", "maria-vera"].includes(escolaSelecionada)) {
+  if (alunoSelecionado && ["joao-prado", "maria-vera", "armando-gomes"].includes(escolaSelecionada)) {
     validarAlunoSelecionadoServidor(alunoSelecionado);
   }
 });

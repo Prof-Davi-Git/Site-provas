@@ -12,6 +12,7 @@ if (typeof corrigirNoServidor === "function") {
       tentativaId: payload.tentativaId,
       respostas: JSON.stringify(payload.respostas),
       ordemQuestoes: JSON.stringify(payload.ordemQuestoes || []),
+      temposQuestoes: JSON.stringify(payload.temposQuestoes || {}),
       ocorrencias: payload.ocorrencias,
       tempo: payload.tempo,
       motivo: payload.motivo

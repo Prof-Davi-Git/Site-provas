@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prova Online | Prof. Davi</title>
 
-  <link rel="stylesheet" href="style.css?v=20260917-9">
+  <link rel="stylesheet" href="style.css?v=20260917-10">
 
   <style>
     /* MATERIAL DE CONSULTA — 16/09/2026 */
@@ -139,6 +139,7 @@
 </head>
 
 <body>
+  <div id="marca-dagua-prova" aria-hidden="true"></div>
   <main class="app-shell">
 
     <section id="tela-inicial" class="card tela ativa">
@@ -335,6 +336,7 @@
       </header>
 
 
+      <div id="area-prova-com-material" class="area-prova-com-material">
       <section class="card prova-card">
 
         <div class="progresso-topo">
@@ -382,6 +384,23 @@
         </div>
 
       </section>
+
+      <aside id="material-interno" class="material-interno" hidden>
+        <header class="material-interno-topo">
+          <div>
+            <span class="label-mini">MATERIAL DE CONSULTA</span>
+            <strong id="titulo-material-interno">Material</strong>
+          </div>
+          <button id="fechar-material-interno" type="button" class="btn-fechar-material">Fechar material</button>
+        </header>
+        <div class="material-interno-controles">
+          <button id="pagina-material-anterior" type="button">Página anterior</button>
+          <span id="pagina-material">Página 1</span>
+          <button id="pagina-material-proxima" type="button">Próxima página</button>
+        </div>
+        <iframe id="visualizador-material" title="Material de consulta em PDF"></iframe>
+      </aside>
+      </div>
 
     </section>
 
@@ -562,18 +581,21 @@
 
   <!-- ARQUIVOS DO SISTEMA -->
 
-  <script src="script.js?v=20260917-9"></script>
-  <script src="forms-config.js?v=20260917-9"></script>
-  <script src="forms-envio.js?v=20260917-9"></script>
-  <script src="questoes-frontend.js?v=20260917-9"></script>
-  <script src="questoes-mobile.js?v=20260917-9"></script>
-  <script src="questoes-versionamento.js?v=20260917-9"></script>
-  <script src="questoes-banco-dados.js?v=20260917-9"></script>
-  <script src="prova-joao-prado.js?v=20260917-9"></script>
-  <script src="recuperacao.js?v=20260917-9"></script>
-  <script src="bloqueio-local.js?v=20260917-9"></script>
-  <script src="backend-apps-script.js?v=20260917-9"></script>
-  <script src="envio-oficial.js?v=20260917-9"></script>
+  <script src="script.js?v=20260917-10"></script>
+  <script src="forms-config.js?v=20260917-10"></script>
+  <script src="forms-envio.js?v=20260917-10"></script>
+  <script src="questoes-frontend.js?v=20260917-10"></script>
+  <script src="questoes-mobile.js?v=20260917-10"></script>
+  <script src="questoes-versionamento.js?v=20260917-10"></script>
+  <script src="questoes-banco-dados.js?v=20260917-10"></script>
+  <script src="questoes-carreiras.js?v=20260917-10"></script>
+  <script src="questoes-redes.js?v=20260917-10"></script>
+  <script src="material-interno.js?v=20260917-10"></script>
+  <script src="prova-joao-prado.js?v=20260917-10"></script>
+  <script src="recuperacao.js?v=20260917-10"></script>
+  <script src="bloqueio-local.js?v=20260917-10"></script>
+  <script src="backend-apps-script.js?v=20260917-10"></script>
+  <script src="envio-oficial.js?v=20260917-10"></script>
 
 
   <!-- CONTROLE DO MATERIAL -->
@@ -628,6 +650,10 @@
 
 
     function abrirMaterial(tipo) {
+
+      if (typeof abrirMaterialInterno === "function" && abrirMaterialInterno(tipo)) {
+        return;
+      }
 
       if (!LINKS_MATERIAL[tipo]) {
         return;

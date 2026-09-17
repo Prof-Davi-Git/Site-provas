@@ -102,7 +102,50 @@ const escolas = {
   },
   "armando-gomes": {
     nome: "EE Professor Armando Gomes de Araujo",
-    alunos: []
+    alunos: [
+      "ANA CAROLINA DE SOUZA LIMA",
+      "ANDREW MAURICIO CELESTINO ALVES",
+      "BEATRIZ SANTANA PEREIRA",
+      "BRENNO SESSO TEIXEIRA",
+      "DANIELLE LAISE DA SILVA MELLO",
+      "EDUARDO LUIZ DE OLIVEIRA NUNES",
+      "FERNANDA MARTINS FERNANDES",
+      "GIOVANNA ARAUJO MOREIRA",
+      "GUSTAVO FELIX LINO",
+      "GUSTAVO FERREIRA LIMA",
+      "HELOISE BATISTA GUIMARAES",
+      "HENRIQUE MIGUEL DA SILVA MARTINS DE MORAES",
+      "HENRY KENJI OZAKI FRANCO",
+      "ISAAC SANTOS OLIVEIRA",
+      "ISABELLA VITORIA ROCHA SANTOS",
+      "LAURO MIGUEL GOMES DOS SANTOS",
+      "LORRAYNE BARBOSA PINHEIRO",
+      "LUCAS BARBOSA SANTOS",
+      "LUIS FERNANDO BARBOSA MUNIZ",
+      "LUIZ HENRIQUE DA SILVA FERREIRA",
+      "LUIZ VICTOR FERNANDES CAETANO",
+      "MARCELLO DE CASTRO HENRIQUES BIROLLI",
+      "MARCOS VINICIUS AGNELO MOREIRA",
+      "MATHEUS VINICIUS DA SILVA",
+      "MICAELLY FIGUEREDO DE ABREU",
+      "MIGUEL CARVALHO DA SILVA",
+      "MIGUEL HENRIQUE OLIVEIRA GUEDES",
+      "MIKAELA FERNANDA MOURA RODRIGUES",
+      "MURILLO HENRIQUE DE SOUZA",
+      "MURILO DA SILVA COSTA",
+      "MURILO RANGEL SILVEIRA",
+      "NATAN SILVA DE LIMA",
+      "NICOLAS CORREIA DA SILVA",
+      "PABLO RAMIREZ DA SILVA DE JESUS",
+      "PEDRO GABRIEL SANTOS RIBEIRO",
+      "PYETRO HENRIQUE SIQUEIRA RODRIGUES",
+      "SOPHIA AMARANTE DO CARMO",
+      "SOPHIA SANT ANA CASTILHO",
+      "THIAGO VARELA DUARTE",
+      "LISANDRO FERREIRA SANTOS DA SILVA",
+      "PEDRO HENRIQUE SANTOS",
+      "VITOR ERNESTO SILVA DO NASCIMENTO"
+    ]
   }
 };
 
@@ -316,13 +359,21 @@ function renderizarQuestao() {
   $("#btn-proxima").textContent = numero === questoes.length ? "Finalizar e enviar" : "Próxima questão";
 
   const letras = ["A", "B", "C", "D", "E"];
-  $("#alternativas").innerHTML = questao.alternativas.map((texto, i) => `
-    <label class="alternativa ${respostas[questao.id] === i ? "selecionada" : ""}">
-      <input type="radio" name="resposta" value="${i}" ${respostas[questao.id] === i ? "checked" : ""}>
+  const ordemAlternativas = Array.isArray(questao.ordemAlternativas)
+    ? questao.ordemAlternativas
+    : questao.alternativas.map((_, indice) => indice);
+
+  $("#alternativas").innerHTML = questao.alternativas.map((texto, i) => {
+    const indiceOriginal = ordemAlternativas[i];
+    const selecionada = respostas[questao.id] === indiceOriginal;
+    return `
+    <label class="alternativa ${selecionada ? "selecionada" : ""}">
+      <input type="radio" name="resposta" value="${indiceOriginal}" ${selecionada ? "checked" : ""}>
       <span class="letra">${letras[i]}</span>
       <span>${texto}</span>
     </label>
-  `).join("");
+  `;
+  }).join("");
 
   document.querySelectorAll('.alternativa input').forEach(input => {
     input.addEventListener('change', () => {
@@ -331,6 +382,10 @@ function renderizarQuestao() {
       input.closest('.alternativa').classList.add('selecionada');
     });
   });
+
+  document.dispatchEvent(new CustomEvent("questao:renderizada", {
+    detail: { id: questao.id }
+  }));
 }
 
 async function iniciarProva() {
@@ -609,8 +664,11 @@ document.addEventListener("visibilitychange", () => {
 
 window.addEventListener("blur", () => {
   if (window.materialConsultaAberto === true) return;
-
-  registrarOcorrencia("Janela perdeu o foco");
+  setTimeout(() => {
+    const visualizador = document.querySelector("#visualizador-material");
+    if (window.materialInternoAberto === true && document.activeElement === visualizador) return;
+    registrarOcorrencia("Janela perdeu o foco");
+  }, 0);
 });
 
 // A abertura do material pode retirar a tela cheia. O botão "Voltar para a prova"

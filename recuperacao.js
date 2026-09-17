@@ -277,6 +277,9 @@ async function retomarTentativa() {
 
   if (typeof atualizarProvaDaEscola === "function") atualizarProvaDaEscola();
   if (tentativa.provaId && typeof PROVA_ID_ATUAL !== "undefined") PROVA_ID_ATUAL = tentativa.provaId;
+  if (typeof prepararProvaParaAluno === "function") {
+    prepararProvaParaAluno(escolaId, alunoSelecionado);
+  }
   reorganizarQuestoes(tentativa.ordemQuestoes);
 
   if (typeof alterarEscola === "function") alterarEscola();
@@ -384,7 +387,7 @@ window.addEventListener("online", () => verificarInternetReal());
 // Registra o Service Worker para permitir que a página continue carregando offline.
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js?v=20260917-9").catch(() => {});
+    navigator.serviceWorker.register("./sw.js?v=20260917-10").catch(() => {});
   });
 }
 

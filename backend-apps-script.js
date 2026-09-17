@@ -6,7 +6,7 @@ const iniciarProvaSemServidor = iniciarProva;
 const finalizarProvaLocalAntesDoBackend = finalizarProva;
 let consultaServidorEmAndamento = false;
 
-function chamarAppsScriptJSONP(parametros, timeout = 15000) {
+function chamarAppsScriptJSONP(parametros, timeout = 7000) {
   return new Promise((resolve, reject) => {
     const callback = `__prova_backend_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     const script = document.createElement("script");
@@ -150,7 +150,19 @@ selecionarAluno = function (nome) {
   selecionarAlunoAntesDoServidor(nome);
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
   if (["joao-prado", "maria-vera", "armando-gomes"].includes(escolaSelecionada)) {
-    validarAlunoSelecionadoServidor(nome);
+    const botao = document.querySelector("#btn-iniciar");
+    const erro = document.querySelector("#erro-identificacao");
+
+    if (alunoJaConcluiuLocal(escolaSelecionada, nome)) {
+      atualizarAvisoSegundaTentativa();
+      return;
+    }
+
+    if (erro) erro.textContent = "";
+    if (botao) {
+      botao.disabled = false;
+      botao.removeAttribute("aria-disabled");
+    }
   }
 };
 
@@ -182,7 +194,11 @@ async function validarInicioComServidor() {
 
   try {
     const resposta = await verificarAlunoNoServidor(nomeSelecionado, escolaSelecionada);
-    if (!resposta?.ok) throw new Error(resposta?.erro || "Falha na validação.");
+    if (!resposta?.ok) {
+      erro.textContent = resposta?.erro || "O servidor da prova ainda não está configurado para esta escola.";
+      botao.disabled = false;
+      return;
+    }
 
     if (resposta.bloqueado) {
       registrarConclusaoLocalComDados({
@@ -201,8 +217,14 @@ async function validarInicioComServidor() {
     botao.disabled = false;
     iniciarProvaSemServidor();
   } catch (e) {
-    erro.textContent = "Não foi possível confirmar sua tentativa no servidor. Verifique a conexão com a internet e tente novamente.";
+    if (alunoJaConcluiuLocal(escolaSelecionada, nomeSelecionado)) {
+      atualizarAvisoSegundaTentativa();
+      return;
+    }
+
+    erro.textContent = "O servidor demorou para responder. A prova será iniciada e ficará salva neste computador até o envio.";
     botao.disabled = false;
+    iniciarProvaSemServidor();
   } finally {
     consultaServidorEmAndamento = false;
   }

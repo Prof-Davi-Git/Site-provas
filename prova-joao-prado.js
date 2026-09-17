@@ -92,18 +92,12 @@ function configurarMateriais(tipos = []) {
   });
 }
 
-function aplicarQuestoes(lista, incluirGabaritoLocal) {
+function aplicarQuestoes(lista) {
   limparGabaritoAtivo();
   questoesBaseAvaliacao = lista.map(({ correta, nivel, ...questao }) => ({
     ...questao,
     alternativas: [...questao.alternativas]
   }));
-
-  if (incluirGabaritoLocal) {
-    lista.forEach(questao => {
-      gabaritoDemo[questao.id] = questao.correta;
-    });
-  }
 
   questoes.splice(0, questoes.length, ...questoesBaseAvaliacao);
   indiceAtual = 0;
@@ -143,7 +137,7 @@ function atualizarInterfaceProva(tituloTexto, infoTexto, segundos) {
 function carregarProvaJoaoPrado() {
   avaliacaoIdAtual = "joao-prado-front-mobile";
   definirProvaIdAtual("joao-prado-frontend-mobile-3b-2026-v1");
-  aplicarQuestoes([...QUESTOES_FRONTEND, ...QUESTOES_MOBILE], false);
+  aplicarQuestoes([...QUESTOES_FRONTEND, ...QUESTOES_MOBILE]);
   configurarMateriais(["front", "mobile"]);
   atualizarInterfaceProva(
     "Avaliação de Front-End e Mobile",
@@ -170,7 +164,7 @@ function carregarProvaMariaVera(id) {
     return;
   }
 
-  aplicarQuestoes(config.obterQuestoes(), true);
+  aplicarQuestoes(config.obterQuestoes());
   configurarMateriais([config.material]);
   atualizarInterfaceProva(config.titulo, config.info, TEMPO_MARIA_VERA_SEGUNDOS);
 }
@@ -248,6 +242,22 @@ document.querySelector("#btn-iniciar")?.addEventListener("click", function (even
     evento.stopImmediatePropagation();
     const erro = document.querySelector("#erro-identificacao");
     if (erro) erro.textContent = "Selecione qual avaliação será realizada.";
+    return;
+  }
+
+  const nomeSelecionado = typeof alunoSelecionado !== "undefined" ? alunoSelecionado : "";
+
+  if (
+    escolaSelecionada === "maria-vera" &&
+    nomeSelecionado &&
+    !(typeof alunoEhTeste === "function" && alunoEhTeste(nomeSelecionado))
+  ) {
+    evento.preventDefault();
+    evento.stopImmediatePropagation();
+    const erro = document.querySelector("#erro-identificacao");
+    if (erro) {
+      erro.textContent = "A prova está pronta para testes, mas a correção oficial da Maria Vera ainda precisa ser configurada pelo professor.";
+    }
     return;
   }
 

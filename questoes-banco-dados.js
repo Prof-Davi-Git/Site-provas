@@ -10,8 +10,7 @@ const QUESTOES_BANCO_DADOS = [
       "Organizar as tabelas, evitar repetição de dados e facilitar a manutenção.",
       "Transformar todas as colunas em chaves primárias.",
       "Eliminar a necessidade de relacionamentos."
-    ],
-    "correta": 1
+    ]
   },
   {
     "id": "b2",
@@ -22,8 +21,7 @@ const QUESTOES_BANCO_DADOS = [
       "Que não existam colunas de texto.",
       "Que cada célula possua somente um valor atômico.",
       "Que todos os dados fiquem em uma única tabela."
-    ],
-    "correta": 2
+    ]
   },
   {
     "id": "b3",
@@ -34,8 +32,7 @@ const QUESTOES_BANCO_DADOS = [
       "Excluir um dos telefones.",
       "Transformar os telefones em uma chave composta.",
       "Guardar cada telefone separadamente, por exemplo em linhas de uma tabela Telefone relacionada ao cliente."
-    ],
-    "correta": 3
+    ]
   },
   {
     "id": "b4",
@@ -46,8 +43,7 @@ const QUESTOES_BANCO_DADOS = [
       "Data do pedido + quantidade",
       "Nome do produto + quantidade",
       "ID do cliente + data do pedido"
-    ],
-    "correta": 0
+    ]
   },
   {
     "id": "b5",
@@ -58,8 +54,7 @@ const QUESTOES_BANCO_DADOS = [
       "Dependências parciais de uma chave composta.",
       "Dependências transitivas entre atributos não chave.",
       "Todos os índices da tabela."
-    ],
-    "correta": 1
+    ]
   },
   {
     "id": "b6",
@@ -70,8 +65,7 @@ const QUESTOES_BANCO_DADOS = [
       "Valor atômico.",
       "Dependência parcial.",
       "Índice composto."
-    ],
-    "correta": 2
+    ]
   },
   {
     "id": "b7",
@@ -82,8 +76,7 @@ const QUESTOES_BANCO_DADOS = [
       "Uma célula pode guardar vários valores.",
       "As dependências parciais devem ser mantidas.",
       "Um atributo não chave não deve depender de outro atributo não chave."
-    ],
-    "correta": 3
+    ]
   },
   {
     "id": "b8",
@@ -94,8 +87,7 @@ const QUESTOES_BANCO_DADOS = [
       "Uma dependência transitiva.",
       "Um valor atômico.",
       "Uma ordenação decrescente."
-    ],
-    "correta": 1
+    ]
   },
   {
     "id": "b9",
@@ -106,8 +98,7 @@ const QUESTOES_BANCO_DADOS = [
       "Fazer o backup automático do banco.",
       "Substituir a chave primária.",
       "Excluir registros duplicados."
-    ],
-    "correta": 0
+    ]
   },
   {
     "id": "b10",
@@ -118,8 +109,7 @@ const QUESTOES_BANCO_DADOS = [
       "A tabela não pode mais receber dados.",
       "Operações de escrita, como INSERT, UPDATE e DELETE, podem ficar menos eficientes.",
       "O MySQL deixa de reconhecer a coluna indexada."
-    ],
-    "correta": 2
+    ]
   },
   {
     "id": "b11",
@@ -130,8 +120,7 @@ const QUESTOES_BANCO_DADOS = [
       "Para ordenar alfabeticamente os resultados.",
       "Para alterar os dados retornados.",
       "Para mostrar o plano de execução e ajudar a verificar como a tabela será pesquisada e se um índice será usado."
-    ],
-    "correta": 3
+    ]
   },
   {
     "id": "b12",
@@ -142,8 +131,7 @@ const QUESTOES_BANCO_DADOS = [
       "Todas as colunas da tabela.",
       "A exclusão dos registros.",
       "Uma condição de pesquisa."
-    ],
-    "correta": 1
+    ]
   },
   {
     "id": "b13",
@@ -154,8 +142,7 @@ const QUESTOES_BANCO_DADOS = [
       "SELECT * FROM clientes ORDER BY cidade = 'São Paulo';",
       "UPDATE clientes SET cidade = 'São Paulo';",
       "SHOW TABLES FROM clientes;"
-    ],
-    "correta": 0
+    ]
   },
   {
     "id": "b14",
@@ -166,8 +153,7 @@ const QUESTOES_BANCO_DADOS = [
       "SELECT DESC nome",
       "ORDER BY nome DESC",
       "PARTITION BY nome ASC"
-    ],
-    "correta": 2
+    ]
   },
   {
     "id": "b15",
@@ -178,8 +164,7 @@ const QUESTOES_BANCO_DADOS = [
       "Separar os usuários por banco de dados.",
       "Alterar o nome de cada usuário.",
       "Numerar as linhas seguindo a ordem definida pelo nome."
-    ],
-    "correta": 3
+    ]
   },
   {
     "id": "b16",
@@ -190,8 +175,7 @@ const QUESTOES_BANCO_DADOS = [
       "Separar as linhas em grupos nos quais a função será aplicada.",
       "Criar uma nova tabela para cada usuário.",
       "Substituir obrigatoriamente o ORDER BY."
-    ],
-    "correta": 1
+    ]
   },
   {
     "id": "b17",
@@ -202,8 +186,7 @@ const QUESTOES_BANCO_DADOS = [
       "DDL manipula registros; DML cria somente índices.",
       "DDL e DML servem apenas para consultas SELECT.",
       "DDL faz backup; DML restaura o banco."
-    ],
-    "correta": 0
+    ]
   },
   {
     "id": "b18",
@@ -214,8 +197,7 @@ const QUESTOES_BANCO_DADOS = [
       "UPDATE e CREATE",
       "ALTER TABLE e INSERT INTO",
       "DELETE e TRUNCATE"
-    ],
-    "correta": 2
+    ]
   },
   {
     "id": "b19",
@@ -226,8 +208,7 @@ const QUESTOES_BANCO_DADOS = [
       "SELECT * FROM cadastro > backup.sql",
       "mysql -u root cadastro < backup_cadastro.sql",
       "mysqldump -u root -p cadastro > backup_cadastro.sql"
-    ],
-    "correta": 3
+    ]
   },
   {
     "id": "b20",
@@ -238,7 +219,6 @@ const QUESTOES_BANCO_DADOS = [
       "Transform, usando CONCAT para juntar as informações.",
       "Load, usando DROP TABLE.",
       "Backup, usando EXPLAIN."
-    ],
-    "correta": 1
+    ]
   }
 ];

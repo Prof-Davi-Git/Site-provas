@@ -10,8 +10,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Informar ao Git quais arquivos ou pastas devem ficar fora dos commits.",
       "Criar automaticamente uma nova branch.",
       "Recuperar arquivos de commits antigos."
-    ],
-    "correta": 1
+    ]
   },
   {
     "id": "v2",
@@ -22,8 +21,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Enviar o arquivo e apagá-lo depois do GitHub.",
       "Adicionar senhas_banco.txt ao .gitignore.",
       "Colocar o arquivo dentro da pasta de imagens."
-    ],
-    "correta": 2
+    ]
   },
   {
     "id": "v3",
@@ -34,8 +32,7 @@ const QUESTOES_VERSIONAMENTO = [
       "git add .",
       "git push",
       "git ignore"
-    ],
-    "correta": 0
+    ]
   },
   {
     "id": "v4",
@@ -46,8 +43,7 @@ const QUESTOES_VERSIONAMENTO = [
       "git checkout a1b2c3 -- filmes.js",
       "git commit --amend filmes.js",
       "git revert filmes.js -- a1b2c3"
-    ],
-    "correta": 1
+    ]
   },
   {
     "id": "v5",
@@ -58,8 +54,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Um comando usado apenas para publicar o site.",
       "Uma linha separada de trabalho que permite alterar e testar sem afetar imediatamente o código principal.",
       "Um arquivo que guarda senhas do projeto."
-    ],
-    "correta": 2
+    ]
   },
   {
     "id": "v6",
@@ -70,8 +65,7 @@ const QUESTOES_VERSIONAMENTO = [
       "hotfix",
       "release",
       "trunk"
-    ],
-    "correta": 1
+    ]
   },
   {
     "id": "v7",
@@ -82,8 +76,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Fazer merge somente na feature que estava em desenvolvimento.",
       "Enviar a hotfix diretamente para o .gitignore.",
       "Fazer merge da hotfix na main e também na develop."
-    ],
-    "correta": 3
+    ]
   },
   {
     "id": "v8",
@@ -94,8 +87,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Fazer mudanças pequenas e integrá-las com frequência ao código principal.",
       "Evitar commits até que todo o sistema esteja pronto.",
       "Criar uma hotfix para toda nova funcionalidade."
-    ],
-    "correta": 1
+    ]
   },
   {
     "id": "v9",
@@ -106,8 +98,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Para criar automaticamente uma senha para o repositório.",
       "Para permitir que outras pessoas vejam e revisem as alterações antes do merge.",
       "Para impedir qualquer Code Review."
-    ],
-    "correta": 2
+    ]
   },
   {
     "id": "v10",
@@ -118,8 +109,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Manter sempre a alteração feita por último, sem conversar com a equipe.",
       "Criar outro repositório e abandonar o histórico.",
       "Decidir qual versão ficará e documentar a resolução para manter o histórico rastreável."
-    ],
-    "correta": 3
+    ]
   },
   {
     "id": "v11",
@@ -130,8 +120,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Criar diretamente as telas do sistema.",
       "Guardar somente imagens do projeto.",
       "Substituir todos os consumidores."
-    ],
-    "correta": 0
+    ]
   },
   {
     "id": "v12",
@@ -142,8 +131,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Ela aguarda até que um consumidor consiga processá-la.",
       "Ela é apagada antes do processamento.",
       "Ela vira automaticamente um tópico."
-    ],
-    "correta": 1
+    ]
   },
   {
     "id": "v13",
@@ -154,8 +142,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Um arquivo .gitignore.",
       "Um tópico.",
       "Um commit vazio."
-    ],
-    "correta": 2
+    ]
   },
   {
     "id": "v14",
@@ -166,8 +153,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Porque exige ligação direta entre todos os sistemas.",
       "Porque apaga cada evento imediatamente após recebê-lo.",
       "Porque registra e organiza fluxos de eventos, permitindo que permaneçam disponíveis por um período."
-    ],
-    "correta": 3
+    ]
   },
   {
     "id": "v15",
@@ -178,8 +164,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Apagar todas as filas do sistema.",
       "Converter os eventos em branches.",
       "Impedir que novos eventos sejam publicados."
-    ],
-    "correta": 0
+    ]
   },
   {
     "id": "v16",
@@ -190,8 +175,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Porque o produtor publica o evento sem precisar conhecer exatamente todos os sistemas interessados.",
       "Porque elimina o uso de mensagens.",
       "Porque obriga cada sistema a chamar todos os outros diretamente."
-    ],
-    "correta": 1
+    ]
   },
   {
     "id": "v17",
@@ -202,8 +186,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Exclui todas as filas existentes.",
       "Decide para qual fila ou filas a mensagem deve ser encaminhada.",
       "Executa o trabalho do consumidor."
-    ],
-    "correta": 2
+    ]
   },
   {
     "id": "v18",
@@ -214,8 +197,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Escolhe apenas uma fila pelo nome exato.",
       "Guarda a mensagem sem encaminhá-la.",
       "Envia somente mensagens que apresentaram erro."
-    ],
-    "correta": 0
+    ]
   },
   {
     "id": "v19",
@@ -226,8 +208,7 @@ const QUESTOES_VERSIONAMENTO = [
       "Para um tópico sem consumidores.",
       "Para o histórico de commits.",
       "Para uma Dead Letter Queue (fila de mensagens mortas)."
-    ],
-    "correta": 3
+    ]
   },
   {
     "id": "v20",
@@ -238,7 +219,6 @@ const QUESTOES_VERSIONAMENTO = [
       "A fila crescerá e o consumidor pode estar sobrecarregado.",
       "A Exchange se transformará automaticamente em Fanout.",
       "O Kafka apagará os eventos restantes."
-    ],
-    "correta": 1
+    ]
   }
 ];

@@ -22,6 +22,7 @@ function chaveConclusao(escola, nome) {
 }
 
 function obterConclusaoLocal(escola, nome) {
+  if (typeof alunoEhTeste === "function" && alunoEhTeste(nome)) return null;
   if (!escola || !nome) return null;
   return lerConclusoesLocais()[chaveConclusao(escola, nome)] || null;
 }
@@ -31,6 +32,7 @@ function alunoJaConcluiuLocal(escola, nome) {
 }
 
 function registrarConclusaoLocal(motivo) {
+  if (typeof alunoEhTeste === "function" && alunoEhTeste(aluno)) return;
   if (!escolaId || !aluno) return;
   try {
     const dados = lerConclusoesLocais();
@@ -61,6 +63,13 @@ function atualizarAvisoSegundaTentativa() {
 
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
   const nomeSelecionado = typeof alunoSelecionado !== "undefined" ? alunoSelecionado : "";
+
+  if (typeof alunoEhTeste === "function" && alunoEhTeste(nomeSelecionado)) {
+    erro.textContent = "Modo de teste: esta tentativa não será registrada.";
+    botao.disabled = false;
+    botao.removeAttribute("aria-disabled");
+    return;
+  }
 
   if (escolaSelecionada === "joao-prado" && nomeSelecionado && alunoJaConcluiuLocal(escolaSelecionada, nomeSelecionado)) {
     const registro = obterConclusaoLocal(escolaSelecionada, nomeSelecionado);

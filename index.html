@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prova Online | Prof. Davi</title>
 
-  <link rel="stylesheet" href="style.css?v=20260916-9">
+  <link rel="stylesheet" href="style.css?v=20260917-1">
 
   <style>
     /* MATERIAL DE CONSULTA — 16/09/2026 */
@@ -526,16 +526,16 @@
 
   <!-- ARQUIVOS DO SISTEMA -->
 
-  <script src="script.js?v=20260916-9"></script>
-  <script src="forms-config.js?v=20260916-9"></script>
-  <script src="forms-envio.js?v=20260916-9"></script>
-  <script src="questoes-frontend.js?v=20260916-9"></script>
-  <script src="questoes-mobile.js?v=20260916-9"></script>
-  <script src="prova-joao-prado.js?v=20260916-9"></script>
-  <script src="recuperacao.js?v=20260916-9"></script>
-  <script src="bloqueio-local.js?v=20260916-9"></script>
-  <script src="backend-apps-script.js?v=20260916-9"></script>
-  <script src="envio-oficial.js?v=20260916-9"></script>
+  <script src="script.js?v=20260917-1"></script>
+  <script src="forms-config.js?v=20260917-1"></script>
+  <script src="forms-envio.js?v=20260917-1"></script>
+  <script src="questoes-frontend.js?v=20260917-1"></script>
+  <script src="questoes-mobile.js?v=20260917-1"></script>
+  <script src="prova-joao-prado.js?v=20260917-1"></script>
+  <script src="recuperacao.js?v=20260917-1"></script>
+  <script src="bloqueio-local.js?v=20260917-1"></script>
+  <script src="backend-apps-script.js?v=20260917-1"></script>
+  <script src="envio-oficial.js?v=20260917-1"></script>
 
 
   <!-- CONTROLE DO MATERIAL -->
@@ -603,21 +603,49 @@
 
     function fecharMaterial() {
 
-        painelMaterial.classList.remove("ativo");
+      painelMaterial.classList.remove("ativo");
 
-        painelMaterial.setAttribute(
-          "aria-hidden",
-          "true"
+      painelMaterial.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+      iframeMaterial.src = "";
+
+      window.focus();
+
+      // Pequeno atraso para a volta do foco não ser interpretada como saída.
+      setTimeout(() => {
+        window.materialConsultaAberto = false;
+      }, 300);
+
+    }
+
+
+    document
+      .querySelectorAll("[data-material]")
+      .forEach(botao => {
+
+        botao.addEventListener(
+          "click",
+          function () {
+
+            abrirMaterial(
+              this.dataset.material
+            );
+
+          }
         );
 
-        iframeMaterial.src = "";
+      });
 
-        window.focus();
 
-        // Pequeno atraso para evitar que a volta do foco
-        // seja interpretada como saída da prova.
-        setTimeout(() => {
-          window.materialConsultaAberto = false;
-        }, 300);
+    btnVoltarProva.addEventListener(
+      "click",
+      fecharMaterial
+    );
 
-        }
+  </script>
+
+</body>
+</html>

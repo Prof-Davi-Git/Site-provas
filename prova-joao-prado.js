@@ -1,23 +1,14 @@
 // AVALIAÇÕES POR ESCOLA — ATUALIZAÇÃO 17/09/2026
-// João Prado: Front-End + Mobile. Maria Vera: duas avaliações de 20 questões.
+// João Prado: Front-End + Mobile. Maria Vera: prova única com 40 questões.
 const TEMPO_JOAO_PRADO_SEGUNDOS = 60 * 60;
-const TEMPO_MARIA_VERA_SEGUNDOS = 40 * 60;
+const TEMPO_MARIA_VERA_SEGUNDOS = 60 * 60;
 
-const AVALIACOES_MARIA_VERA = {
-  versionamento: {
-    provaId: "maria-vera-versionamento-mensageria-3b-2026-v1",
-    titulo: "Avaliação de Versionamento de Código e Sistemas de Mensageria",
-    info: "A prova possui 20 questões, do nível fácil ao difícil. Tempo máximo: 40 minutos. A ordem das questões é personalizada para cada aluno e o material de Versionamento pode ser consultado.",
-    material: "versionamento",
-    obterQuestoes: () => QUESTOES_VERSIONAMENTO
-  },
-  banco: {
-    provaId: "maria-vera-banco-de-dados-3b-2026-v1",
-    titulo: "Avaliação de Banco de Dados",
-    info: "A prova possui 20 questões, do nível fácil ao difícil. Tempo máximo: 40 minutos. A ordem das questões é personalizada para cada aluno e o material de Banco de Dados pode ser consultado.",
-    material: "banco",
-    obterQuestoes: () => QUESTOES_BANCO_DADOS
-  }
+const PROVA_MARIA_VERA = {
+  provaId: "maria-vera-versionamento-mensageria-banco-3b-2026-v1",
+  titulo: "Avaliação de Versionamento, Mensageria e Banco de Dados",
+  info: "A prova possui 40 questões de Versionamento, Mensageria e Banco de Dados, misturadas entre si. Tempo máximo: 60 minutos. A ordem das questões é personalizada para cada aluno e os dois materiais podem ser consultados.",
+  materiais: ["versionamento", "banco"],
+  obterQuestoes: () => [...QUESTOES_VERSIONAMENTO, ...QUESTOES_BANCO_DADOS]
 };
 
 let avaliacaoIdAtual = "";
@@ -146,27 +137,16 @@ function carregarProvaJoaoPrado() {
   );
 }
 
-function carregarProvaMariaVera(id) {
-  const config = AVALIACOES_MARIA_VERA[id];
-  avaliacaoIdAtual = config ? id : "";
-  definirProvaIdAtual(config ? config.provaId : "");
-
-  if (!config) {
-    limparGabaritoAtivo();
-    questoesBaseAvaliacao = [];
-    questoes.splice(0, questoes.length);
-    configurarMateriais([]);
-    atualizarInterfaceProva(
-      "Avaliações da EE Maria Vera Lombardi Siqueira",
-      "Selecione a avaliação de Versionamento/Mensageria ou Banco de Dados.",
-      TEMPO_MARIA_VERA_SEGUNDOS
-    );
-    return;
-  }
-
-  aplicarQuestoes(config.obterQuestoes());
-  configurarMateriais([config.material]);
-  atualizarInterfaceProva(config.titulo, config.info, TEMPO_MARIA_VERA_SEGUNDOS);
+function carregarProvaMariaVera() {
+  avaliacaoIdAtual = "maria-vera-prova-unica";
+  definirProvaIdAtual(PROVA_MARIA_VERA.provaId);
+  aplicarQuestoes(PROVA_MARIA_VERA.obterQuestoes());
+  configurarMateriais(PROVA_MARIA_VERA.materiais);
+  atualizarInterfaceProva(
+    PROVA_MARIA_VERA.titulo,
+    PROVA_MARIA_VERA.info,
+    TEMPO_MARIA_VERA_SEGUNDOS
+  );
 }
 
 function prepararProvaParaAluno(escolaSelecionada, nomeAluno) {
@@ -184,26 +164,19 @@ function prepararProvaParaAluno(escolaSelecionada, nomeAluno) {
 
 function atualizarProvaDaEscola() {
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
-  const seletorAvaliacao = document.querySelector("#seletor-avaliacao");
-  const campoAvaliacao = document.querySelector("#avaliacao-aluno");
 
   ordemPreparadaParaAluno = "";
 
   if (escolaSelecionada === "joao-prado") {
-    seletorAvaliacao?.classList.add("oculto");
-    if (campoAvaliacao) campoAvaliacao.value = "";
     carregarProvaJoaoPrado();
     return;
   }
 
   if (escolaSelecionada === "maria-vera") {
-    seletorAvaliacao?.classList.remove("oculto");
-    carregarProvaMariaVera(campoAvaliacao?.value || "");
+    carregarProvaMariaVera();
     return;
   }
 
-  seletorAvaliacao?.classList.add("oculto");
-  if (campoAvaliacao) campoAvaliacao.value = "";
   avaliacaoIdAtual = "";
   definirProvaIdAtual("");
   limparGabaritoAtivo();
@@ -222,41 +195,22 @@ function atualizarProvaDaEscola() {
   }
 }
 
-document.querySelector("#avaliacao-aluno")?.addEventListener("change", event => {
-  carregarProvaMariaVera(event.target.value);
-  const erro = document.querySelector("#erro-identificacao");
-  if (erro) erro.textContent = "";
-  if (typeof atualizarAvisoSegundaTentativa === "function") {
-    setTimeout(atualizarAvisoSegundaTentativa, 0);
-  }
-});
-
 document.querySelector("#escola-aluno")?.addEventListener("change", atualizarProvaDaEscola);
 
 document.querySelector("#btn-iniciar")?.addEventListener("click", function (evento) {
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
-  const avaliacaoSelecionada = document.querySelector("#avaliacao-aluno")?.value || "";
-
-  if (escolaSelecionada === "maria-vera" && !AVALIACOES_MARIA_VERA[avaliacaoSelecionada]) {
-    evento.preventDefault();
-    evento.stopImmediatePropagation();
-    const erro = document.querySelector("#erro-identificacao");
-    if (erro) erro.textContent = "Selecione qual avaliação será realizada.";
-    return;
-  }
 
   const nomeSelecionado = typeof alunoSelecionado !== "undefined" ? alunoSelecionado : "";
 
   if (
     escolaSelecionada === "maria-vera" &&
-    nomeSelecionado &&
-    !(typeof alunoEhTeste === "function" && alunoEhTeste(nomeSelecionado))
+    nomeSelecionado
   ) {
     evento.preventDefault();
     evento.stopImmediatePropagation();
     const erro = document.querySelector("#erro-identificacao");
     if (erro) {
-      erro.textContent = "A prova está pronta para testes, mas a correção oficial da Maria Vera ainda precisa ser configurada pelo professor.";
+      erro.textContent = "A aplicação oficial da Maria Vera ainda precisa ter a correção e o formulário configurados pelo professor.";
     }
     return;
   }

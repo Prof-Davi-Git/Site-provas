@@ -15,10 +15,10 @@ const QUESTOES_VERSIONAMENTO = [
   {
     "id": "v2",
     "nivel": "facil",
-    "texto": "Um arquivo senhas_banco.txt contém usuário e senha do banco. O que deve ser feito antes do commit?",
+    "texto": "Um arquivo senhas_banco.txt contém usuário e senha do banco. O que deve ser feito antes de realizar o commit?",
     "alternativas": [
       "Renomeá-lo para senhas_banco.html.",
-      "Enviar o arquivo e apagá-lo depois do GitHub.",
+      "Enviar o arquivo ao GitHub e apagá-lo depois.",
       "Adicionar senhas_banco.txt ao .gitignore.",
       "Colocar o arquivo dentro da pasta de imagens."
     ]

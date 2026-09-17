@@ -35,7 +35,6 @@ const escolas = {
   "maria-vera": {
     nome: "EE Maria Vera Lombardi Siqueira",
     alunos: [
-      ALUNO_TESTE_NOME,
       "ANA LETICIA CAITANO DA SILVA",
       "ARTHUR ANDERSON GOMES BATISTA",
       "ARTHUR EMANUEL DA SILVA",
@@ -65,7 +64,6 @@ const escolas = {
   "joao-prado": {
     nome: "EE Professor João Prado Margarido",
     alunos: [
-      ALUNO_TESTE_NOME,
       "ANA BEATRIZ CORDEIRO DA ROCHA",
       "ANA BEATRIZ DA SILVA VIEIRA",
       "BEATRIZ CAMILI GOMES BARBOSA",

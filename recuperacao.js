@@ -384,7 +384,7 @@ window.addEventListener("online", () => verificarInternetReal());
 // Registra o Service Worker para permitir que a página continue carregando offline.
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js?v=20260917-7").catch(() => {});
+    navigator.serviceWorker.register("./sw.js?v=20260917-8").catch(() => {});
   });
 }
 

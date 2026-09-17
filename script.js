@@ -346,6 +346,10 @@ async function iniciarProva() {
     return;
   }
 
+  if (typeof prepararProvaParaAluno === "function") {
+    prepararProvaParaAluno(escolaId, alunoSelecionado);
+  }
+
   aluno = alunoSelecionado;
   escolaNome = escolas[escolaId].nome;
   $("#erro-identificacao").textContent = "";
@@ -584,7 +588,7 @@ async function finalizarProva(motivo) {
 
   $("#status-envio").textContent = enviado
     ? "Prova finalizada e enviada ao professor."
-    : "Versão de teste: resultado calculado normalmente. O envio ao Google Forms ainda não foi configurado.";
+    : "Avaliação concluída neste dispositivo. O envio ao professor ainda não foi configurado para esta escola.";
 
   if (motivo.includes("Limite")) {
     $("#resultado-titulo").textContent = "Prova encerrada automaticamente";

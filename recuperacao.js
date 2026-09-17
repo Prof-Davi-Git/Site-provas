@@ -46,6 +46,8 @@ function salvarEstadoProva() {
       ativa: true,
       escolaId,
       escolaNome,
+      avaliacaoId: typeof avaliacaoIdAtual !== "undefined" ? avaliacaoIdAtual : "",
+      provaId: typeof PROVA_ID_ATUAL !== "undefined" ? PROVA_ID_ATUAL : "",
       aluno,
       alunoSelecionado,
       indiceAtual,
@@ -253,8 +255,6 @@ async function retomarTentativa() {
     return;
   }
 
-  reorganizarQuestoes(tentativa.ordemQuestoes);
-
   escolaId = tentativa.escolaId || "";
   escolaNome = tentativa.escolaNome || (escolas[escolaId]?.nome || "");
   aluno = tentativa.aluno || "";
@@ -271,6 +271,14 @@ async function retomarTentativa() {
 
   const selectEscola = document.querySelector("#escola-aluno");
   if (selectEscola) selectEscola.value = escolaId;
+
+  const selectAvaliacao = document.querySelector("#avaliacao-aluno");
+  if (selectAvaliacao) selectAvaliacao.value = tentativa.avaliacaoId || "";
+
+  if (typeof atualizarProvaDaEscola === "function") atualizarProvaDaEscola();
+  if (tentativa.provaId && typeof PROVA_ID_ATUAL !== "undefined") PROVA_ID_ATUAL = tentativa.provaId;
+  reorganizarQuestoes(tentativa.ordemQuestoes);
+
   if (typeof alterarEscola === "function") alterarEscola();
 
   // alterarEscola limpa a seleção, então restauramos depois.
@@ -376,7 +384,7 @@ window.addEventListener("online", () => verificarInternetReal());
 // Registra o Service Worker para permitir que a página continue carregando offline.
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js?v=20260917-5").catch(() => {});
+    navigator.serviceWorker.register("./sw.js?v=20260917-6").catch(() => {});
   });
 }
 

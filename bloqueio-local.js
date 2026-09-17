@@ -1,7 +1,6 @@
-// BLOQUEIO LOCAL DE SEGUNDA TENTATIVA — 16/09/2026
-// Atua como proteção imediata no dispositivo. O Apps Script é a fonte definitiva.
-
-const PROVA_ID_ATUAL = "joao-prado-frontend-mobile-3b-2026-v1";
+// BLOQUEIO LOCAL DE SEGUNDA TENTATIVA — ATUALIZAÇÃO 17/09/2026
+// Cada avaliação possui um identificador próprio; o aluno teste nunca é bloqueado.
+let PROVA_ID_ATUAL = "joao-prado-frontend-mobile-3b-2026-v1";
 const CHAVE_CONCLUIDAS = "site-provas:concluidas:v1";
 
 function lerConclusoesLocais() {
@@ -23,7 +22,7 @@ function chaveConclusao(escola, nome) {
 
 function obterConclusaoLocal(escola, nome) {
   if (typeof alunoEhTeste === "function" && alunoEhTeste(nome)) return null;
-  if (!escola || !nome) return null;
+  if (!PROVA_ID_ATUAL || !escola || !nome) return null;
   return lerConclusoesLocais()[chaveConclusao(escola, nome)] || null;
 }
 
@@ -33,7 +32,8 @@ function alunoJaConcluiuLocal(escola, nome) {
 
 function registrarConclusaoLocal(motivo) {
   if (typeof alunoEhTeste === "function" && alunoEhTeste(aluno)) return;
-  if (!escolaId || !aluno) return;
+  if (!PROVA_ID_ATUAL || !escolaId || !aluno) return;
+
   try {
     const dados = lerConclusoesLocais();
     dados[chaveConclusao(escolaId, aluno)] = {
@@ -71,7 +71,7 @@ function atualizarAvisoSegundaTentativa() {
     return;
   }
 
-  if (escolaSelecionada === "joao-prado" && nomeSelecionado && alunoJaConcluiuLocal(escolaSelecionada, nomeSelecionado)) {
+  if (PROVA_ID_ATUAL && escolaSelecionada && nomeSelecionado && alunoJaConcluiuLocal(escolaSelecionada, nomeSelecionado)) {
     const registro = obterConclusaoLocal(escolaSelecionada, nomeSelecionado);
     const quando = registro?.concluidaEm ? new Date(registro.concluidaEm).toLocaleString("pt-BR") : "anteriormente";
     erro.textContent = `Esta avaliação já foi registrada para este aluno (${quando}). Uma nova tentativa precisa ser liberada pelo professor.`;
@@ -84,14 +84,13 @@ function atualizarAvisoSegundaTentativa() {
   botao.removeAttribute("aria-disabled");
 }
 
-// Sem backend, mantém o bloqueio local. Com backend carregado, deixa o servidor
-// confirmar se o professor liberou uma nova tentativa.
 document.querySelector("#btn-iniciar")?.addEventListener("click", evento => {
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
   const nomeSelecionado = typeof alunoSelecionado !== "undefined" ? alunoSelecionado : "";
-  if (typeof validarInicioComServidor === "function") return;
 
-  if (escolaSelecionada === "joao-prado" && nomeSelecionado && alunoJaConcluiuLocal(escolaSelecionada, nomeSelecionado)) {
+  if (escolaSelecionada === "joao-prado" && typeof validarInicioComServidor === "function") return;
+
+  if (PROVA_ID_ATUAL && escolaSelecionada && nomeSelecionado && alunoJaConcluiuLocal(escolaSelecionada, nomeSelecionado)) {
     evento.preventDefault();
     evento.stopImmediatePropagation();
     atualizarAvisoSegundaTentativa();
@@ -99,6 +98,7 @@ document.querySelector("#btn-iniciar")?.addEventListener("click", evento => {
 }, true);
 
 document.querySelector("#escola-aluno")?.addEventListener("change", () => setTimeout(atualizarAvisoSegundaTentativa, 0));
+document.querySelector("#avaliacao-aluno")?.addEventListener("change", () => setTimeout(atualizarAvisoSegundaTentativa, 0));
 document.querySelector("#busca-aluno")?.addEventListener("input", () => setTimeout(atualizarAvisoSegundaTentativa, 0));
 
 const selecionarAlunoAntesDoBloqueio = selecionarAluno;

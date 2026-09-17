@@ -3,6 +3,7 @@ const APPS_SCRIPT_JOAO_PRADO = "https://script.google.com/macros/s/AKfycbyr_lU3S
 const CHAVE_CORRECAO_PENDENTE = "site-provas:correcao-pendente:v1";
 
 const iniciarProvaSemServidor = iniciarProva;
+const finalizarProvaLocalAntesDoBackend = finalizarProva;
 let consultaServidorEmAndamento = false;
 
 function chamarAppsScriptJSONP(parametros, timeout = 15000) {
@@ -340,6 +341,12 @@ async function processarResultadoServidor(payload, resultado) {
 finalizarProva = async function (motivo) {
   if (typeof alunoEhTeste === "function" && alunoEhTeste()) {
     await finalizarProvaTesteLocal(motivo);
+    return;
+  }
+
+  if (escolaId !== "joao-prado") {
+    await finalizarProvaLocalAntesDoBackend(motivo);
+    if (typeof registrarConclusaoLocal === "function") registrarConclusaoLocal(motivo);
     return;
   }
 

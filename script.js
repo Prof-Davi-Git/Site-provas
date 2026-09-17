@@ -7,6 +7,14 @@ const MODO_DEMO = true;
 const LIMITE_OCORRENCIAS = 3;
 const TEMPO_PROVA_SEGUNDOS = 10 * 60;
 
+// ATUALIZAÇÃO 17/09/2026 — usuário exclusivo para testes locais.
+// Este nome nunca deve ser enviado ao Apps Script, Forms ou resultados oficiais.
+const ALUNO_TESTE_NOME = "ALUNO TESTE — NÃO REGISTRA";
+
+function alunoEhTeste(nome = aluno) {
+  return String(nome || "").trim() === ALUNO_TESTE_NOME;
+}
+
 const FORM_CONFIG = {
   url: "", // Ex.: https://docs.google.com/forms/d/e/SEU_ID/formResponse
   campos: {
@@ -31,6 +39,7 @@ const escolas = {
   "joao-prado": {
     nome: "EE Professor João Prado Margarido",
     alunos: [
+      ALUNO_TESTE_NOME,
       "ANA BEATRIZ CORDEIRO DA ROCHA",
       "ANA BEATRIZ DA SILVA VIEIRA",
       "BEATRIZ CAMILI GOMES BARBOSA",
@@ -472,6 +481,42 @@ function enviarParaForms(dados) {
   return true;
 }
 
+async function finalizarProvaTesteLocal(motivo) {
+  if (finalizando) return;
+
+  finalizando = true;
+  encerramentoSolicitado = true;
+  provaAtiva = false;
+  clearInterval(timer);
+
+  $("#modal-ocorrencia").classList.remove("ativo");
+  $("#modal-ocorrencia").setAttribute("aria-hidden", "true");
+
+  if (document.fullscreenElement && document.exitFullscreen) {
+    try { await document.exitFullscreen(); } catch (erro) {}
+  }
+
+  $("#resultado-aluno").textContent = ALUNO_TESTE_NOME;
+  $("#resultado-escola").textContent = escolaNome;
+  $("#resultado-titulo").textContent = motivo.includes("Limite")
+    ? "Teste encerrado automaticamente"
+    : "Teste finalizado";
+  $("#resultado-icone").textContent = motivo.includes("Limite") ? "!" : "✓";
+  $("#total-acertos").textContent = "—";
+  $("#tempo-final").textContent = formatarTempo(tempoUtilizado());
+  $("#saidas-final").textContent = ocorrencias.length;
+  $("#lista-resultado").innerHTML =
+    '<div class="resultado-item"><span>Modo de teste concluído. A correção e o resultado não são registrados.</span></div>';
+  $("#status-envio").textContent =
+    "Nenhuma informação deste teste foi enviada ao Apps Script, Google Forms ou resultados oficiais.";
+
+  try { clearInterval(heartbeatTimer); } catch (erro) {}
+  try { encerrarBackupLocal(); } catch (erro) {}
+
+  mostrarTela("#tela-resultado");
+}
+
+// Finalização antiga mantida apenas como base de compatibilidade.
 async function finalizarProva(motivo) {
   if (finalizando) return;
   finalizando = true;

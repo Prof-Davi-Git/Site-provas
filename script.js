@@ -511,3 +511,26 @@ document.addEventListener("fullscreenchange", () => {
     registrarOcorrencia("Saiu da tela cheia");
   }
 });
+
+// ATUALIZAÇÃO 17/09/2026 — restaura os controles removidos no último upload.
+document.addEventListener("contextmenu", evento => {
+  if (provaAtiva) evento.preventDefault();
+});
+["copy", "cut", "paste"].forEach(tipo => {
+  document.addEventListener(tipo, evento => {
+    if (provaAtiva) evento.preventDefault();
+  });
+});
+document.addEventListener("keydown", evento => {
+  if (!provaAtiva) return;
+  const tecla = evento.key.toLowerCase();
+  if ((evento.ctrlKey || evento.metaKey) && ["c", "v", "x", "u", "p"].includes(tecla)) {
+    evento.preventDefault();
+  }
+});
+
+$("#escola-aluno").addEventListener("change", alterarEscola);
+$("#busca-aluno").addEventListener("input", filtrarAlunos);
+$("#btn-iniciar").addEventListener("click", iniciarProva);
+$("#btn-proxima").addEventListener("click", proximaQuestao);
+$("#btn-continuar").addEventListener("click", continuarProva);

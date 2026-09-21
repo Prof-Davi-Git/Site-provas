@@ -64,7 +64,6 @@ const escolas = {
   "joao-prado": {
     nome: "EE Professor João Prado Margarido",
     alunos: [
-      "ALUNO TESTE — NÃO REGISTRA",
       "ANA BEATRIZ CORDEIRO DA ROCHA",
       "ANA BEATRIZ DA SILVA VIEIRA",
       "BEATRIZ CAMILI GOMES BARBOSA",

@@ -154,7 +154,7 @@ function atualizarInterfaceProva(tituloTexto, infoTexto, segundos) {
 
 function carregarProvaJoaoPrado() {
   avaliacaoIdAtual = "joao-prado-front-mobile";
-  definirProvaIdAtual("joao-prado-frontend-mobile-3b-2026-v1");
+  definirProvaIdAtual("joao-prado-frontend-mobile-3b-2026-v2-oficial");
   aplicarQuestoes([...QUESTOES_FRONTEND, ...QUESTOES_MOBILE]);
   configurarMateriais(["front", "mobile"]);
   atualizarInterfaceProva(

@@ -7,6 +7,26 @@ const finalizarProvaLocalAntesDoBackend = finalizarProva;
 let consultaServidorEmAndamento = false;
 const statusTentativasServidor = new Map();
 
+function mostrarCarregamentoValidacao(mensagem = "Estamos verificando se sua prova está liberada.") {
+  const modal = document.querySelector("#modal-validacao");
+  const texto = document.querySelector("#mensagem-validacao");
+  if (!modal) return;
+
+  if (texto) texto.textContent = mensagem;
+  modal.hidden = false;
+  modal.setAttribute("aria-hidden", "false");
+  document.body.setAttribute("aria-busy", "true");
+}
+
+function ocultarCarregamentoValidacao() {
+  const modal = document.querySelector("#modal-validacao");
+  if (!modal) return;
+
+  modal.hidden = true;
+  modal.setAttribute("aria-hidden", "true");
+  document.body.removeAttribute("aria-busy");
+}
+
 function chaveStatusTentativa(escola, nome) {
   return `${escola}|${normalizarTexto(nome)}`;
 }
@@ -272,6 +292,7 @@ async function validarInicioComServidor() {
   botao.disabled = true;
   botao.setAttribute("aria-disabled", "true");
   erro.textContent = "Validando sua tentativa...";
+  mostrarCarregamentoValidacao("Estamos verificando se sua prova está liberada.");
 
   try {
     let resposta = null;
@@ -327,6 +348,7 @@ async function validarInicioComServidor() {
     botao.removeAttribute("aria-disabled");
   } finally {
     consultaServidorEmAndamento = false;
+    ocultarCarregamentoValidacao();
   }
 }
 
@@ -574,11 +596,9 @@ async function processarCorrecaoPendente() {
 }
 
 window.addEventListener("online", () => {
+  // Ao recuperar a conexão, processa apenas envios pendentes.
+  // A liberação da prova é verificada somente quando o aluno clicar em "Iniciar prova".
   processarCorrecaoPendente();
-  const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
-  if (alunoSelecionado && ["joao-prado", "maria-vera", "armando-gomes"].includes(escolaSelecionada)) {
-    validarAlunoSelecionadoServidor(alunoSelecionado);
-  }
 });
 window.addEventListener("pageshow", processarCorrecaoPendente);
 setTimeout(processarCorrecaoPendente, 1800);

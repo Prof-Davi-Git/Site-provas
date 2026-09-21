@@ -434,6 +434,7 @@ async function iniciarProva() {
   renderizarQuestao();
   iniciarCronometro();
   await entrarTelaCheia();
+  iniciarVigiaTelaCheia();
 }
 
 function proximaQuestao() {
@@ -455,6 +456,7 @@ function proximaQuestao() {
 function mostrarEncerramentoImediato(motivo) {
   provaAtiva = false;
   clearInterval(timer);
+  pararVigiaTelaCheia();
 
   $("#modal-ocorrencia").classList.remove("ativo");
   $("#modal-ocorrencia").setAttribute("aria-hidden", "true");
@@ -619,6 +621,7 @@ async function finalizarProvaTesteLocal(motivo) {
   encerramentoSolicitado = true;
   provaAtiva = false;
   clearInterval(timer);
+  pararVigiaTelaCheia();
 
   $("#modal-ocorrencia").classList.remove("ativo");
   $("#modal-ocorrencia").setAttribute("aria-hidden", "true");
@@ -723,6 +726,7 @@ window.addEventListener("blur", () => {
 // solicita a tela cheia novamente antes de reativar o monitoramento.
 function manterProvaBloqueadaForaDaTelaCheia() {
   if (!provaAtiva || finalizando || encerramentoSolicitado || document.fullscreenElement) return;
+  if (window.materialConsultaAberto === true) return;
 
   const modal = $("#modal-ocorrencia");
   const detalhe = $("#modal-detalhe");
@@ -739,6 +743,25 @@ function manterProvaBloqueadaForaDaTelaCheia() {
     botao.disabled = false;
     if (!aguardandoRetornoTelaCheia) botao.textContent = "Voltar para tela cheia";
   }
+}
+
+function iniciarVigiaTelaCheia() {
+  if (vigiaTelaCheiaTimer) clearInterval(vigiaTelaCheiaTimer);
+
+  vigiaTelaCheiaTimer = setInterval(() => {
+    if (!provaAtiva || finalizando || encerramentoSolicitado) return;
+    if (window.materialConsultaAberto === true) return;
+
+    if (!document.fullscreenElement) {
+      manterProvaBloqueadaForaDaTelaCheia();
+    }
+  }, 350);
+}
+
+function pararVigiaTelaCheia() {
+  if (!vigiaTelaCheiaTimer) return;
+  clearInterval(vigiaTelaCheiaTimer);
+  vigiaTelaCheiaTimer = null;
 }
 
 document.addEventListener("fullscreenchange", () => {
@@ -767,6 +790,18 @@ document.addEventListener("fullscreenerror", () => {
   manterProvaBloqueadaForaDaTelaCheia();
 });
 
+window.addEventListener("focus", () => {
+  if (provaAtiva && !document.fullscreenElement) {
+    manterProvaBloqueadaForaDaTelaCheia();
+  }
+});
+
+window.addEventListener("pageshow", () => {
+  if (provaAtiva && !document.fullscreenElement) {
+    manterProvaBloqueadaForaDaTelaCheia();
+  }
+});
+
 // ATUALIZAÇÃO 17/09/2026 — restaura os controles removidos no último upload.
 document.addEventListener("contextmenu", evento => {
   if (provaAtiva) evento.preventDefault();
@@ -778,11 +813,32 @@ document.addEventListener("contextmenu", evento => {
 });
 document.addEventListener("keydown", evento => {
   if (!provaAtiva) return;
-  const tecla = evento.key.toLowerCase();
-  if ((evento.ctrlKey || evento.metaKey) && ["c", "v", "x", "u", "p"].includes(tecla)) {
+
+  const tecla = String(evento.key || "").toLowerCase();
+  const teclaFuncao = /^f([1-9]|1[0-2])$/.test(tecla);
+
+  const atalhoCtrlOuCmd =
+    (evento.ctrlKey || evento.metaKey) &&
+    ["c", "v", "x", "u", "p", "s", "r", "l", "t", "n", "w", "f", "g", "h", "j"].includes(tecla);
+
+  const atalhoAlt =
+    evento.altKey &&
+    ["arrowleft", "arrowright", "home"].includes(tecla);
+
+  const tentativaSaida =
+    tecla === "escape" ||
+    tecla === "esc" ||
+    tecla === "browserback" ||
+    tecla === "browserforward";
+
+  if (teclaFuncao || atalhoCtrlOuCmd || atalhoAlt || tentativaSaida) {
     evento.preventDefault();
+    evento.stopPropagation();
+    if (typeof evento.stopImmediatePropagation === "function") {
+      evento.stopImmediatePropagation();
+    }
   }
-});
+}, true);
 
 $("#escola-aluno").addEventListener("change", alterarEscola);
 $("#busca-aluno").addEventListener("input", filtrarAlunos);

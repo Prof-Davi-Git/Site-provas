@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prova Online | Prof. Davi</title>
 
-  <link rel="stylesheet" href="style.css?v=20260917-10">
+  <link rel="stylesheet" href="style.css?v=20260920-04">
 
   <style>
     /* MATERIAL DE CONSULTA — 16/09/2026 */
@@ -393,12 +393,18 @@
           </div>
           <button id="fechar-material-interno" type="button" class="btn-fechar-material">Fechar material</button>
         </header>
-        <div class="material-interno-controles">
-          <button id="pagina-material-anterior" type="button">Página anterior</button>
-          <span id="pagina-material">Página 1</span>
-          <button id="pagina-material-proxima" type="button">Próxima página</button>
+        <div class="material-slide-area">
+          <iframe
+            id="visualizador-material"
+            title="Slide do material de consulta"
+            scrolling="no"
+          ></iframe>
         </div>
-        <iframe id="visualizador-material" title="Material de consulta em PDF"></iframe>
+        <div class="material-interno-controles">
+          <button id="pagina-material-anterior" type="button">← Voltar</button>
+          <span id="pagina-material">Slide 1</span>
+          <button id="pagina-material-proxima" type="button">Avançar →</button>
+        </div>
       </aside>
       </div>
 
@@ -590,7 +596,7 @@
   <script src="questoes-banco-dados.js?v=20260917-10"></script>
   <script src="questoes-carreiras.js?v=20260917-10"></script>
   <script src="questoes-redes.js?v=20260917-10"></script>
-  <script src="material-interno.js?v=20260920-01"></script>
+  <script src="material-interno.js?v=20260920-04"></script>
   <script src="prova-joao-prado.js?v=20260920-01"></script>
   <script src="recuperacao.js?v=20260917-10"></script>
   <script src="bloqueio-local.js?v=20260920-03"></script>

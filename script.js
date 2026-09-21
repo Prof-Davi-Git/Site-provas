@@ -338,13 +338,31 @@ function iniciarCronometro() {
 }
 
 async function entrarTelaCheia() {
-  try {
-    if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-      await document.documentElement.requestFullscreen();
+  if (document.fullscreenElement) return true;
+  if (!document.documentElement.requestFullscreen) return false;
+
+  if (solicitacaoTelaCheiaEmAndamento) {
+    try {
+      return await solicitacaoTelaCheiaEmAndamento;
+    } catch (e) {
+      return false;
     }
-  } catch (e) {
-    // Alguns navegadores ou políticas escolares podem impedir tela cheia.
   }
+
+  solicitacaoTelaCheiaEmAndamento = (async () => {
+    try {
+      await document.documentElement.requestFullscreen();
+      return Boolean(document.fullscreenElement);
+    } catch (e) {
+      return false;
+    } finally {
+      setTimeout(() => {
+        solicitacaoTelaCheiaEmAndamento = null;
+      }, 120);
+    }
+  })();
+
+  return await solicitacaoTelaCheiaEmAndamento;
 }
 
 function renderizarQuestao() {
@@ -500,9 +518,38 @@ function registrarOcorrencia(tipo) {
 async function continuarProva() {
   if (!provaAtiva || finalizando || encerramentoSolicitado) return;
 
-  $("#modal-ocorrencia").classList.remove("ativo");
-  $("#modal-ocorrencia").setAttribute("aria-hidden", "true");
-  await entrarTelaCheia();
+  const modal = $("#modal-ocorrencia");
+  const detalhe = $("#modal-detalhe");
+  const botao = $("#btn-continuar");
+
+  if (document.fullscreenElement) {
+    modal.classList.remove("ativo");
+    modal.setAttribute("aria-hidden", "true");
+    aguardandoRetornoTelaCheia = false;
+    return;
+  }
+
+  aguardandoRetornoTelaCheia = true;
+  botao.disabled = true;
+  botao.textContent = "Voltando para tela cheia...";
+
+  const entrou = await entrarTelaCheia();
+
+  if (entrou && document.fullscreenElement) {
+    aguardandoRetornoTelaCheia = false;
+    modal.classList.remove("ativo");
+    modal.setAttribute("aria-hidden", "true");
+    botao.disabled = false;
+    botao.textContent = "Continuar prova";
+    return;
+  }
+
+  aguardandoRetornoTelaCheia = false;
+  modal.classList.add("ativo");
+  modal.setAttribute("aria-hidden", "false");
+  detalhe.textContent = "A tela cheia não foi ativada. Clique novamente para continuar a prova.";
+  botao.disabled = false;
+  botao.textContent = "Voltar para tela cheia";
 }
 
 function corrigirDemo() {
@@ -674,12 +721,50 @@ window.addEventListener("blur", () => {
 
 // A abertura do material pode retirar a tela cheia. O botão "Voltar para a prova"
 // solicita a tela cheia novamente antes de reativar o monitoramento.
+function manterProvaBloqueadaForaDaTelaCheia() {
+  if (!provaAtiva || finalizando || encerramentoSolicitado || document.fullscreenElement) return;
+
+  const modal = $("#modal-ocorrencia");
+  const detalhe = $("#modal-detalhe");
+  const botao = $("#btn-continuar");
+
+  modal.classList.add("ativo");
+  modal.setAttribute("aria-hidden", "false");
+
+  if (detalhe && !detalhe.textContent) {
+    detalhe.textContent = "Retorne para tela cheia para continuar a prova.";
+  }
+
+  if (botao) {
+    botao.disabled = false;
+    if (!aguardandoRetornoTelaCheia) botao.textContent = "Voltar para tela cheia";
+  }
+}
+
 document.addEventListener("fullscreenchange", () => {
   if (window.materialConsultaAberto === true) return;
 
   if (provaAtiva && !document.fullscreenElement) {
     registrarOcorrencia("Saiu da tela cheia");
+    manterProvaBloqueadaForaDaTelaCheia();
+    return;
   }
+
+  if (provaAtiva && document.fullscreenElement && aguardandoRetornoTelaCheia) {
+    const modal = $("#modal-ocorrencia");
+    const botao = $("#btn-continuar");
+    modal.classList.remove("ativo");
+    modal.setAttribute("aria-hidden", "true");
+    aguardandoRetornoTelaCheia = false;
+    if (botao) {
+      botao.disabled = false;
+      botao.textContent = "Continuar prova";
+    }
+  }
+});
+
+document.addEventListener("fullscreenerror", () => {
+  manterProvaBloqueadaForaDaTelaCheia();
 });
 
 // ATUALIZAÇÃO 17/09/2026 — restaura os controles removidos no último upload.

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prova Online | Prof. Davi</title>
 
-  <link rel="stylesheet" href="style.css?v=20260920-09">
+  <link rel="stylesheet" href="style.css?v=20260921-05">
 
   <style>
     /* MATERIAL DE CONSULTA — 16/09/2026 */
@@ -538,6 +538,30 @@
   </section>
 
 
+  <!-- CARREGAMENTO DE VALIDAÇÃO -->
+  <div
+    id="modal-validacao"
+    class="modal-validacao"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="titulo-validacao"
+    aria-describedby="mensagem-validacao"
+    aria-hidden="true"
+    hidden
+  >
+    <div class="modal-validacao-card">
+      <div class="spinner-validacao" aria-hidden="true"></div>
+      <h2 id="titulo-validacao">Aguarde um momento</h2>
+      <p id="mensagem-validacao">
+        Estamos verificando se sua prova está liberada.
+      </p>
+      <small>
+        Não clique novamente. Essa verificação pode levar alguns segundos.
+      </small>
+    </div>
+  </div>
+
+
   <!-- MODAL DE OCORRÊNCIA -->
 
   <div
@@ -604,7 +628,7 @@
   <script src="prova-joao-prado.js?v=20260921-02"></script>
   <script src="recuperacao.js?v=20260921-04"></script>
   <script src="bloqueio-local.js?v=20260921-04"></script>
-  <script src="backend-apps-script.js?v=20260921-04"></script>
+  <script src="backend-apps-script.js?v=20260921-05"></script>
   <script src="envio-oficial.js?v=20260917-10"></script>
 
 

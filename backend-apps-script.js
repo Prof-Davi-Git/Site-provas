@@ -1,10 +1,15 @@
-// BACKEND PRIVADO — GOOGLE APPS SCRIPT — TRÊS ESCOLAS — ATUALIZAÇÃO 20/09/2026
+// BACKEND PRIVADO — GOOGLE APPS SCRIPT — TRÊS ESCOLAS — ATUALIZAÇÃO 20/09/2026-2
 const APPS_SCRIPT_JOAO_PRADO = "https://script.google.com/macros/s/AKfycbyr_lU3SgzvkExYJFrsJChdJ72g9PZXBXPpJnT2N0CcSN3R_F2j4RoWZFzzYnf-aztT/exec";
 const CHAVE_CORRECAO_PENDENTE = "site-provas:correcao-pendente:v1";
 
 const iniciarProvaSemServidor = iniciarProva;
 const finalizarProvaLocalAntesDoBackend = finalizarProva;
 let consultaServidorEmAndamento = false;
+const statusTentativasServidor = new Map();
+
+function chaveStatusTentativa(escola, nome) {
+  return `${escola}|${normalizarTexto(nome)}`;
+}
 
 function chamarAppsScriptJSONP(parametros, timeout = 7000) {
   return new Promise((resolve, reject) => {
@@ -81,7 +86,7 @@ function registrarConclusaoLocalComDados(payload, motivo) {
   } catch (e) {}
 }
 
-async function verificarAlunoNoServidor(nome, escolaSelecionada = "") {
+async function verificarAlunoNoServidor(nome, escolaSelecionada = "", timeout = 7000) {
   if (typeof alunoEhTeste === "function" && alunoEhTeste(nome)) {
     return { ok: true, bloqueado: false, modoTeste: true };
   }
@@ -95,7 +100,62 @@ async function verificarAlunoNoServidor(nome, escolaSelecionada = "") {
     acao: "verificar",
     escola: escolaParaConsulta,
     aluno: nome
-  });
+  }, timeout);
+}
+
+async function verificarJoaoPradoSilenciosamente(nome) {
+  if (!nome || (typeof alunoEhTeste === "function" && alunoEhTeste(nome))) return;
+
+  const chave = chaveStatusTentativa("joao-prado", nome);
+
+  try {
+    const resposta = await verificarAlunoNoServidor(nome, "joao-prado", 1800);
+    if (!resposta?.ok) return;
+
+    const bloqueado = Boolean(resposta.bloqueado);
+    statusTentativasServidor.set(chave, bloqueado ? "bloqueado" : "liberado");
+
+    const nomeAtual = typeof alunoSelecionado !== "undefined" ? alunoSelecionado : "";
+    const escolaAtual = document.querySelector("#escola-aluno")?.value || "";
+    if (escolaAtual !== "joao-prado" || nomeAtual !== nome || provaAtiva) return;
+
+    const botao = document.querySelector("#btn-iniciar");
+    const erro = document.querySelector("#erro-identificacao");
+
+    if (bloqueado) {
+      registrarConclusaoLocalComDados({
+        escolaId: "joao-prado",
+        escolaNome: escolas["joao-prado"].nome,
+        aluno: nome,
+        motivo: "Bloqueado pelo servidor"
+      }, "Bloqueado pelo servidor");
+
+      if (erro) {
+        erro.textContent = "Esta avaliação já foi realizada por este aluno. Uma nova tentativa precisa ser liberada pelo professor.";
+      }
+      if (botao) {
+        botao.disabled = true;
+        botao.setAttribute("aria-disabled", "true");
+      }
+      return;
+    }
+
+    removerConclusaoLocal("joao-prado", nome);
+    if (erro && (
+      erro.textContent.includes("já foi registrada") ||
+      erro.textContent.includes("já foi realizada") ||
+      erro.textContent.includes("Verificando") ||
+      erro.textContent.includes("Validando")
+    )) {
+      erro.textContent = "";
+    }
+    if (botao) {
+      botao.disabled = false;
+      botao.removeAttribute("aria-disabled");
+    }
+  } catch (e) {
+    // Falha de consulta não impede o acesso à prova.
+  }
 }
 
 async function validarAlunoSelecionadoServidor(nome) {
@@ -149,11 +209,38 @@ const selecionarAlunoAntesDoServidor = selecionarAluno;
 selecionarAluno = function (nome) {
   selecionarAlunoAntesDoServidor(nome);
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
-  if (["joao-prado", "maria-vera", "armando-gomes"].includes(escolaSelecionada)) {
-    // O servidor é a fonte oficial para saber se o aluno já realizou a prova.
-    // Um bloqueio antigo salvo no navegador não pode impedir uma nova consulta.
-    // Se o professor zerou/liberou a tentativa no backend, a validação abaixo
-    // remove automaticamente o registro local antigo.
+  const botao = document.querySelector("#btn-iniciar");
+  const erro = document.querySelector("#erro-identificacao");
+
+  if (escolaSelecionada === "joao-prado") {
+    if (typeof alunoEhTeste === "function" && alunoEhTeste(nome)) {
+      if (erro) erro.textContent = "Modo de teste: esta tentativa não será registrada.";
+      if (botao) {
+        botao.disabled = false;
+        botao.removeAttribute("aria-disabled");
+      }
+      return;
+    }
+
+    // A seleção não fica esperando o servidor e não exibe mensagem de verificação.
+    if (erro && (
+      erro.textContent.includes("já foi registrada") ||
+      erro.textContent.includes("Verificando") ||
+      erro.textContent.includes("Validando") ||
+      erro.textContent.includes("Não foi possível validar")
+    )) {
+      erro.textContent = "";
+    }
+    if (botao) {
+      botao.disabled = false;
+      botao.removeAttribute("aria-disabled");
+    }
+
+    verificarJoaoPradoSilenciosamente(nome);
+    return;
+  }
+
+  if (["maria-vera", "armando-gomes"].includes(escolaSelecionada)) {
     validarAlunoSelecionadoServidor(nome);
   }
 };
@@ -177,6 +264,66 @@ async function validarInicioComServidor() {
     erro.textContent = "";
     botao.disabled = false;
     iniciarProvaSemServidor();
+    return;
+  }
+
+  // João Prado: acesso rápido. A checagem é silenciosa e nunca deixa o aluno
+  // preso na tela inicial por falha ou lentidão do Apps Script.
+  if (escolaSelecionada === "joao-prado") {
+    const chave = chaveStatusTentativa(escolaSelecionada, nomeSelecionado);
+    const statusConhecido = statusTentativasServidor.get(chave);
+
+    if (statusConhecido === "bloqueado") {
+      erro.textContent = "Esta avaliação já foi realizada por este aluno. Uma nova tentativa precisa ser liberada pelo professor.";
+      botao.disabled = true;
+      return;
+    }
+
+    if (statusConhecido === "liberado") {
+      removerConclusaoLocal(escolaSelecionada, nomeSelecionado);
+      erro.textContent = "";
+      botao.disabled = false;
+      iniciarProvaSemServidor();
+      return;
+    }
+
+    consultaServidorEmAndamento = true;
+    botao.disabled = true;
+    erro.textContent = "";
+
+    try {
+      const resposta = await verificarAlunoNoServidor(nomeSelecionado, escolaSelecionada, 1200);
+
+      if (resposta?.ok && resposta.bloqueado) {
+        statusTentativasServidor.set(chave, "bloqueado");
+        registrarConclusaoLocalComDados({
+          escolaId: escolaSelecionada,
+          escolaNome: escolas[escolaSelecionada].nome,
+          aluno: nomeSelecionado,
+          motivo: "Bloqueado pelo servidor"
+        }, "Bloqueado pelo servidor");
+        erro.textContent = "Esta avaliação já foi realizada por este aluno. Uma nova tentativa precisa ser liberada pelo professor.";
+        botao.disabled = true;
+        return;
+      }
+
+      if (resposta?.ok) {
+        statusTentativasServidor.set(chave, "liberado");
+        removerConclusaoLocal(escolaSelecionada, nomeSelecionado);
+      }
+
+      erro.textContent = "";
+      botao.disabled = false;
+      iniciarProvaSemServidor();
+    } catch (e) {
+      // Sem resposta rápida do servidor, a prova abre normalmente e permanece
+      // protegida pelo backup local e pelo envio posterior já existente.
+      erro.textContent = "";
+      botao.disabled = false;
+      iniciarProvaSemServidor();
+    } finally {
+      consultaServidorEmAndamento = false;
+    }
     return;
   }
 
@@ -411,7 +558,9 @@ async function processarCorrecaoPendente() {
 window.addEventListener("online", () => {
   processarCorrecaoPendente();
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
-  if (alunoSelecionado && ["joao-prado", "maria-vera", "armando-gomes"].includes(escolaSelecionada)) {
+  if (alunoSelecionado && escolaSelecionada === "joao-prado") {
+    verificarJoaoPradoSilenciosamente(alunoSelecionado);
+  } else if (alunoSelecionado && ["maria-vera", "armando-gomes"].includes(escolaSelecionada)) {
     validarAlunoSelecionadoServidor(alunoSelecionado);
   }
 });

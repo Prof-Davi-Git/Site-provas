@@ -475,8 +475,13 @@ input:focus,select:focus{
   border:0;
   background:#e5e7eb;
 }
+.material-interno.modo-slides{
+  margin-top:-18px;
+  top:6px;
+  height:calc(100vh - 58px);
+}
 .material-interno.modo-slides .material-slide-area{
-  padding:12px;
+  padding:38px 68px 10px;
   background:#dfe3e8;
 }
 .material-interno.modo-slides #visualizador-material{display:none}
@@ -519,24 +524,24 @@ input:focus,select:focus{
 }
 .material-interno.modo-slides .material-interno-controles button{
   position:absolute;
-  top:50%;
+  top:52%;
   transform:translateY(-50%);
-  width:46px;
-  height:58px;
-  min-width:46px;
-  min-height:58px;
+  width:42px;
+  height:54px;
+  min-width:42px;
+  min-height:54px;
   padding:0;
   border:0;
-  border-radius:10px;
+  border-radius:9px;
   background:rgba(18,28,38,.82);
   color:#fff;
-  font-size:2rem;
+  font-size:1.85rem;
   line-height:1;
   box-shadow:0 2px 8px rgba(0,0,0,.22);
   pointer-events:auto;
 }
-.material-interno.modo-slides #pagina-material-anterior{left:12px}
-.material-interno.modo-slides #pagina-material-proxima{right:12px}
+.material-interno.modo-slides #pagina-material-anterior{left:13px}
+.material-interno.modo-slides #pagina-material-proxima{right:13px}
 .material-interno.modo-slides .material-interno-controles button:hover{
   background:rgba(18,28,38,.95);
 }
@@ -601,7 +606,14 @@ input:focus,select:focus{
 @media(max-width:1050px){
   .area-prova-com-material.com-material{grid-template-columns:1fr}
   .material-interno{position:relative;top:auto;height:78vh}
+  .material-interno.modo-slides{
+    margin-top:0;
+    height:72vh;
+  }
+  .material-interno.modo-slides .material-slide-area{
+    padding:36px 58px 10px;
+  }
   #imagem-material-slide{
-    max-height:calc(78vh - 175px);
+    max-height:calc(72vh - 130px);
   }
 }

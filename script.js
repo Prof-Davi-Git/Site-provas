@@ -195,6 +195,8 @@ let finalizando = false;
 let inicioTimestamp = null;
 let ultimaOcorrenciaTimestamp = 0;
 let encerramentoSolicitado = false;
+let aguardandoRetornoTelaCheia = false;
+let vigiaTelaCheiaTimer = null;
 
 const $ = (seletor) => document.querySelector(seletor);
 const telas = document.querySelectorAll(".tela");
@@ -341,28 +343,12 @@ async function entrarTelaCheia() {
   if (document.fullscreenElement) return true;
   if (!document.documentElement.requestFullscreen) return false;
 
-  if (solicitacaoTelaCheiaEmAndamento) {
-    try {
-      return await solicitacaoTelaCheiaEmAndamento;
-    } catch (e) {
-      return false;
-    }
+  try {
+    await document.documentElement.requestFullscreen();
+    return Boolean(document.fullscreenElement);
+  } catch (e) {
+    return false;
   }
-
-  solicitacaoTelaCheiaEmAndamento = (async () => {
-    try {
-      await document.documentElement.requestFullscreen();
-      return Boolean(document.fullscreenElement);
-    } catch (e) {
-      return false;
-    } finally {
-      setTimeout(() => {
-        solicitacaoTelaCheiaEmAndamento = null;
-      }, 120);
-    }
-  })();
-
-  return await solicitacaoTelaCheiaEmAndamento;
 }
 
 function renderizarQuestao() {

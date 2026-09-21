@@ -1,13 +1,15 @@
-// MATERIAL INTERNO, MARCA-D'ÁGUA E TEMPO POR QUESTÃO — ATUALIZAÇÃO 20/09/2026-4
+// MATERIAL INTERNO, MARCA-D'ÁGUA E TEMPO POR QUESTÃO — ATUALIZAÇÃO 20/09/2026-5
 const MATERIAIS_INTERNOS = {
   front: {
     titulo: "Material de Front-End",
-    arquivo: "materiais/Material_Front_End.pdf",
+    tipo: "imagens",
+    pasta: "materiais/front-end-slides",
     paginas: 70
   },
   mobile: {
     titulo: "Material de Mobile",
-    arquivo: "materiais/Material_Mobile.pdf",
+    tipo: "imagens",
+    pasta: "materiais/mobile-slides",
     paginas: 42
   },
   carreiras: {
@@ -31,33 +33,63 @@ const temposPorQuestao = {};
 function atualizarPaginaMaterial() {
   const config = MATERIAIS_INTERNOS[materialInternoAtual];
   const visualizador = document.querySelector("#visualizador-material");
+  const imagem = document.querySelector("#imagem-material-slide");
+  const status = document.querySelector("#material-slide-status");
+  const imagem = document.querySelector("#imagem-material-slide");
+  const status = document.querySelector("#material-slide-status");
   const indicador = document.querySelector("#pagina-material");
   const anterior = document.querySelector("#pagina-material-anterior");
   const proxima = document.querySelector("#pagina-material-proxima");
-  if (!config || !visualizador) return;
+  if (!config || !visualizador || !imagem) return;
 
   paginaMaterialAtual = Math.max(1, Math.min(config.paginas, paginaMaterialAtual));
+  const modoImagens = config.tipo === "imagens";
 
-  const modoSlides = ["front", "mobile"].includes(materialInternoAtual);
-  const fragmento = modoSlides
-    ? `#page=${paginaMaterialAtual}&zoom=page-fit&view=Fit&toolbar=0&navpanes=0&scrollbar=0`
-    : `#page=${paginaMaterialAtual}&toolbar=0&navpanes=0&view=FitH`;
+  if (modoImagens) {
+    visualizador.hidden = true;
+    visualizador.removeAttribute("src");
 
-  visualizador.src = `${config.arquivo}${fragmento}`;
+    imagem.hidden = false;
+    imagem.alt = `${config.titulo} - slide ${paginaMaterialAtual} de ${config.paginas}`;
+    if (status) status.hidden = true;
+
+    const numero = String(paginaMaterialAtual).padStart(3, "0");
+    imagem.src = `${config.pasta}/slide-${numero}.jpg?v=20260920-05`;
+
+    imagem.onload = () => {
+      imagem.hidden = false;
+      if (status) status.hidden = true;
+    };
+
+    imagem.onerror = () => {
+      imagem.hidden = true;
+      if (status) {
+        status.hidden = false;
+        status.textContent = `Slide ${paginaMaterialAtual} ainda não foi enviado para o site.`;
+      }
+    };
+  } else {
+    imagem.hidden = true;
+    imagem.removeAttribute("src");
+    if (status) status.hidden = true;
+
+    visualizador.hidden = false;
+    visualizador.src = `${config.arquivo}#page=${paginaMaterialAtual}&toolbar=0&navpanes=0&view=FitH`;
+  }
 
   if (indicador) {
-    indicador.textContent = modoSlides
+    indicador.textContent = modoImagens
       ? `Slide ${paginaMaterialAtual} de ${config.paginas}`
       : `Página ${paginaMaterialAtual} de ${config.paginas}`;
   }
 
   if (anterior) {
-    anterior.textContent = modoSlides ? "← Voltar" : "Página anterior";
+    anterior.textContent = modoImagens ? "← Voltar" : "Página anterior";
     anterior.disabled = paginaMaterialAtual <= 1;
   }
 
   if (proxima) {
-    proxima.textContent = modoSlides ? "Avançar →" : "Próxima página";
+    proxima.textContent = modoImagens ? "Avançar →" : "Próxima página";
     proxima.disabled = paginaMaterialAtual >= config.paginas;
   }
 }
@@ -76,7 +108,7 @@ function abrirMaterialInterno(tipo) {
   const titulo = document.querySelector("#titulo-material-interno");
   if (painel) {
     painel.hidden = false;
-    painel.classList.toggle("modo-slides", ["front", "mobile"].includes(tipo));
+    painel.classList.toggle("modo-slides", config.tipo === "imagens");
   }
   if (layout) layout.classList.add("com-material");
   if (app) app.classList.add("material-aberto");
@@ -97,6 +129,11 @@ function fecharMaterialInterno() {
   if (layout) layout.classList.remove("com-material");
   if (app) app.classList.remove("material-aberto");
   if (visualizador) visualizador.removeAttribute("src");
+  if (imagem) {
+    imagem.removeAttribute("src");
+    imagem.hidden = true;
+  }
+  if (status) status.hidden = true;
   window.materialInternoAberto = false;
   materialInternoAtual = "";
 }

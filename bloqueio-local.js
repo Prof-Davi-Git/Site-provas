@@ -1,4 +1,4 @@
-// BLOQUEIO LOCAL DE SEGUNDA TENTATIVA — ATUALIZAÇÃO 21/09/2026
+// BLOQUEIO LOCAL DE SEGUNDA TENTATIVA — ATUALIZAÇÃO 21/09/2026-2
 // Cada avaliação possui um identificador próprio; o aluno teste nunca é bloqueado.
 let PROVA_ID_ATUAL = "joao-prado-frontend-mobile-3b-2026-v1";
 const CHAVE_CONCLUIDAS = "site-provas:concluidas:v1";
@@ -66,6 +66,21 @@ function atualizarAvisoSegundaTentativa() {
 
   if (typeof alunoEhTeste === "function" && alunoEhTeste(nomeSelecionado)) {
     erro.textContent = "Modo de teste: esta tentativa não será registrada.";
+    botao.disabled = false;
+    botao.removeAttribute("aria-disabled");
+    return;
+  }
+
+  // Nas três escolas oficiais, o servidor é a fonte de verdade.
+  // Um registro antigo no localStorage não pode manter o aluno bloqueado
+  // depois que o professor resetar/liberar a tentativa.
+  if (["joao-prado", "maria-vera", "armando-gomes"].includes(escolaSelecionada)) {
+    if (
+      erro.textContent.includes("já foi registrada para este aluno") ||
+      erro.textContent.includes("Uma nova tentativa precisa ser liberada pelo professor")
+    ) {
+      erro.textContent = "";
+    }
     botao.disabled = false;
     botao.removeAttribute("aria-disabled");
     return;

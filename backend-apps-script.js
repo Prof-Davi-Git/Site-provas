@@ -414,7 +414,45 @@ async function corrigirNoServidor(payload) {
     ocorrencias: payload.ocorrencias,
     tempo: payload.tempo,
     motivo: payload.motivo
-  }, 20000);
+  }, 45000);
+}
+
+function montarPayloadServidorSeguro(motivo) {
+  try {
+    return montarPayloadServidor(motivo);
+  } catch (e) {
+    return {
+      escolaId: typeof escolaId !== "undefined" ? escolaId : "",
+      escolaNome: typeof escolaNome !== "undefined" ? escolaNome : "",
+      aluno: typeof aluno !== "undefined" ? aluno : "",
+      tentativaId: tentativaIdAtual(),
+      respostas: { ...(typeof respostas !== "undefined" ? respostas : {}) },
+      ordemQuestoes: Array.isArray(questoes) ? questoes.map(q => q.id) : [],
+      temposQuestoes: {},
+      ocorrencias: typeof ocorrenciasTexto === "function" ? ocorrenciasTexto() : "Não disponível",
+      tempo: typeof tempoUtilizado === "function" ? formatarTempo(tempoUtilizado()) : "00:00",
+      motivo,
+      criadoEm: new Date().toISOString()
+    };
+  }
+}
+
+function mostrarResultadoProcessando(payload) {
+  document.querySelector("#resultado-aluno").textContent = payload.aluno || "";
+  document.querySelector("#resultado-escola").textContent = payload.escolaNome || "";
+  document.querySelector("#total-acertos").textContent = "Corrigindo...";
+  document.querySelector("#tempo-final").textContent = payload.tempo || "00:00";
+  document.querySelector("#saidas-final").textContent = Array.isArray(ocorrencias) ? ocorrencias.length : 0;
+  document.querySelector("#resultado-titulo").textContent =
+    String(payload.motivo || "").includes("Limite")
+      ? "Prova encerrada automaticamente — corrigindo"
+      : "Prova finalizada — corrigindo";
+  document.querySelector("#resultado-icone").textContent = "…";
+  document.querySelector("#lista-resultado").innerHTML =
+    '<div class="resultado-item"><span>Calculando o resultado. Aguarde alguns segundos.</span></div>';
+  document.querySelector("#status-envio").textContent =
+    "Enviando respostas e aguardando a correção do servidor.";
+  mostrarTela("#tela-resultado");
 }
 
 function letrasRespostasPayload(payload) {
@@ -427,19 +465,32 @@ function detalhesServidorTexto(payload, detalhes) {
 }
 
 function renderizarResultadoServidor(payload, resultado) {
-  const detalhes = resultado.detalhes || {};
+  const detalhes = resultado?.detalhes && typeof resultado.detalhes === "object"
+    ? resultado.detalhes
+    : {};
+  const total = Number.isFinite(Number(resultado?.total))
+    ? Number(resultado.total)
+    : payload.ordemQuestoes.length;
+  const acertos = Number.isFinite(Number(resultado?.acertos))
+    ? Number(resultado.acertos)
+    : null;
+
   document.querySelector("#resultado-aluno").textContent = payload.aluno;
   document.querySelector("#resultado-escola").textContent = payload.escolaNome;
-  document.querySelector("#total-acertos").textContent = `${resultado.acertos}/${resultado.total}`;
+  document.querySelector("#total-acertos").textContent =
+    acertos === null ? "Resultado recebido" : `${acertos}/${total}`;
   document.querySelector("#tempo-final").textContent = payload.tempo;
   document.querySelector("#saidas-final").textContent = Array.isArray(ocorrencias) ? ocorrencias.length : 0;
 
-  document.querySelector("#lista-resultado").innerHTML = payload.ordemQuestoes.map((id, i) => {
-    const correta = Boolean(detalhes[id]);
-    return `<div class="resultado-item ${correta ? "correta" : "errada"}"><span>Questão ${i + 1}</span><span class="status">${correta ? "✓ Acertou" : "✕ Errou"}</span></div>`;
-  }).join("");
+  const possuiDetalhes = Object.keys(detalhes).length > 0;
+  document.querySelector("#lista-resultado").innerHTML = possuiDetalhes
+    ? payload.ordemQuestoes.map((id, i) => {
+        const correta = Boolean(detalhes[id]);
+        return `<div class="resultado-item ${correta ? "correta" : "errada"}"><span>Questão ${i + 1}</span><span class="status">${correta ? "✓ Acertou" : "✕ Errou"}</span></div>`;
+      }).join("")
+    : '<div class="resultado-item"><span>Resultado recebido. O detalhamento por questão não foi retornado pelo servidor.</span></div>';
 
-  if (payload.motivo.includes("Limite")) {
+  if (String(payload.motivo || "").includes("Limite")) {
     document.querySelector("#resultado-titulo").textContent = "Prova encerrada automaticamente";
     document.querySelector("#resultado-icone").textContent = "!";
   } else {
@@ -447,6 +498,8 @@ function renderizarResultadoServidor(payload, resultado) {
     document.querySelector("#resultado-icone").textContent = "✓";
   }
 
+  document.querySelector("#status-envio").textContent =
+    "Resultado corrigido e registrado.";
   mostrarTela("#tela-resultado");
 }
 
@@ -523,14 +576,18 @@ finalizarProva = async function (motivo) {
   finalizando = true;
   provaAtiva = false;
   clearInterval(timer);
+  try { if (typeof pararVigiaTelaCheia === "function") pararVigiaTelaCheia(); } catch (e) {}
   document.querySelector("#modal-ocorrencia")?.classList.remove("ativo");
 
-  const payload = montarPayloadServidor(motivo);
+  const payload = montarPayloadServidorSeguro(motivo);
   salvarCorrecaoPendente(payload);
   registrarConclusaoLocalComDados(payload, "Aguardando confirmação do servidor");
+  mostrarResultadoProcessando(payload);
 
   if (document.fullscreenElement && document.exitFullscreen) {
-    try { await document.exitFullscreen(); } catch (e) {}
+    try {
+      document.exitFullscreen().catch(() => {});
+    } catch (e) {}
   }
 
   try {

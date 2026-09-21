@@ -1,4 +1,4 @@
-// BLOQUEIO LOCAL DE SEGUNDA TENTATIVA — ATUALIZAÇÃO 17/09/2026
+// BLOQUEIO LOCAL DE SEGUNDA TENTATIVA — ATUALIZAÇÃO 20/09/2026
 // Cada avaliação possui um identificador próprio; o aluno teste nunca é bloqueado.
 let PROVA_ID_ATUAL = "joao-prado-frontend-mobile-3b-2026-v1";
 const CHAVE_CONCLUIDAS = "site-provas:concluidas:v1";
@@ -66,6 +66,17 @@ function atualizarAvisoSegundaTentativa() {
 
   if (typeof alunoEhTeste === "function" && alunoEhTeste(nomeSelecionado)) {
     erro.textContent = "Modo de teste: esta tentativa não será registrada.";
+    botao.disabled = false;
+    botao.removeAttribute("aria-disabled");
+    return;
+  }
+
+  // Na João Prado, o navegador nunca bloqueia o acesso sozinho.
+  // O servidor é a fonte oficial e a checagem é feita sem travar a seleção.
+  if (escolaSelecionada === "joao-prado") {
+    if (erro.textContent.includes("Esta avaliação já foi registrada para este aluno")) {
+      erro.textContent = "";
+    }
     botao.disabled = false;
     botao.removeAttribute("aria-disabled");
     return;

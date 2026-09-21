@@ -1,4 +1,4 @@
-// MATERIAL INTERNO, MARCA-D'ÁGUA E TEMPO POR QUESTÃO — ATUALIZAÇÃO 20/09/2026-5
+// MATERIAL INTERNO, MARCA-D'ÁGUA E TEMPO POR QUESTÃO — ATUALIZAÇÃO 20/09/2026-8
 const MATERIAIS_INTERNOS = {
   front: {
     titulo: "Material de Front-End",
@@ -82,12 +82,12 @@ function atualizarPaginaMaterial() {
   }
 
   if (anterior) {
-    anterior.textContent = modoImagens ? "← Voltar" : "Página anterior";
+    anterior.textContent = modoImagens ? "←" : "Página anterior";
     anterior.disabled = paginaMaterialAtual <= 1;
   }
 
   if (proxima) {
-    proxima.textContent = modoImagens ? "Avançar →" : "Próxima página";
+    proxima.textContent = modoImagens ? "→" : "Próxima página";
     proxima.disabled = paginaMaterialAtual >= config.paginas;
   }
 }

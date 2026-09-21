@@ -1,5 +1,15 @@
-// MATERIAL INTERNO, MARCA-D'ÁGUA E TEMPO POR QUESTÃO — 17/09/2026
+// MATERIAL INTERNO, MARCA-D'ÁGUA E TEMPO POR QUESTÃO — ATUALIZAÇÃO 20/09/2026
 const MATERIAIS_INTERNOS = {
+  front: {
+    titulo: "Material de Front-End",
+    arquivo: "materiais/Material_Front_End.pdf",
+    paginas: 70
+  },
+  mobile: {
+    titulo: "Material de Mobile",
+    arquivo: "materiais/Material_Mobile.pdf",
+    paginas: 42
+  },
   carreiras: {
     titulo: "Material de Carreiras",
     arquivo: "materiais/Material_Carreiras.pdf",

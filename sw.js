@@ -1,4 +1,4 @@
-const CACHE_NAME = "site-provas-v20260921-03";
+const CACHE_NAME = "site-provas-v20260921-04";
 const ARQUIVOS = [
   "./",
   "./index.html",

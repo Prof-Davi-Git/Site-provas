@@ -1,6 +1,6 @@
 // BLOQUEIO LOCAL DE SEGUNDA TENTATIVA — ATUALIZAÇÃO 21/09/2026-2
 // Cada avaliação possui um identificador próprio; o aluno teste nunca é bloqueado.
-let PROVA_ID_ATUAL = "joao-prado-frontend-mobile-3b-2026-v1";
+let PROVA_ID_ATUAL = "joao-prado-frontend-mobile-3b-2026-v2-oficial";
 const CHAVE_CONCLUIDAS = "site-provas:concluidas:v1";
 
 function lerConclusoesLocais() {

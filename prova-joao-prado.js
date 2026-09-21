@@ -2,7 +2,7 @@
 // João Prado: Front-End + Mobile. Maria Vera e Armando Gomes: provas únicas com 40 questões.
 const TEMPO_JOAO_PRADO_SEGUNDOS = 30 * 60;
 const TEMPO_MARIA_VERA_SEGUNDOS = 60 * 60;
-const TEMPO_ARMANDO_GOMES_SEGUNDOS = 30 * 60;
+const TEMPO_ARMANDO_GOMES_SEGUNDOS = 60 * 60;
 
 const PROVA_MARIA_VERA = {
   provaId: "maria-vera-versionamento-mensageria-banco-3b-2026-v1",
@@ -15,7 +15,7 @@ const PROVA_MARIA_VERA = {
 const PROVA_ARMANDO_GOMES = {
   provaId: "armando-gomes-carreiras-redes-3b-2026-v1",
   titulo: "Avaliação de Carreiras e Redes",
-  info: "A prova possui 40 questões de Carreiras e Redes, misturadas entre si. Tempo máximo: 30 minutos. A ordem das questões e das alternativas é personalizada para cada aluno. Os dois materiais podem ser consultados ao lado da prova.",
+  info: "A prova possui 40 questões de Carreiras e Redes, misturadas entre si. Tempo máximo: 60 minutos. A ordem das questões e das alternativas é personalizada para cada aluno. Os dois materiais podem ser consultados ao lado da prova.",
   materiais: ["carreiras", "redes"],
   obterQuestoes: () => [...QUESTOES_CARREIRAS, ...QUESTOES_REDES]
 };

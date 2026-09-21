@@ -590,8 +590,8 @@
   <script src="questoes-banco-dados.js?v=20260917-10"></script>
   <script src="questoes-carreiras.js?v=20260917-10"></script>
   <script src="questoes-redes.js?v=20260917-10"></script>
-  <script src="material-interno.js?v=20260917-10"></script>
-  <script src="prova-joao-prado.js?v=20260917-10"></script>
+  <script src="material-interno.js?v=20260920-01"></script>
+  <script src="prova-joao-prado.js?v=20260920-01"></script>
   <script src="recuperacao.js?v=20260917-10"></script>
   <script src="bloqueio-local.js?v=20260917-10"></script>
   <script src="backend-apps-script.js?v=20260917-11"></script>
@@ -649,10 +649,33 @@
       document.querySelector("#btn-voltar-prova");
 
 
-    function abrirMaterial(tipo) {
+    async function abrirMaterial(tipo) {
 
-      if (typeof abrirMaterialInterno === "function" && abrirMaterialInterno(tipo)) {
-        return;
+      // ATUALIZAÇÃO 20/09/2026 — Front-End e Mobile usam os PDFs internos
+      // assim que os arquivos estiverem na pasta materiais. Enquanto isso,
+      // o link externo continua como fallback para não deixar o aluno sem consulta.
+      if (typeof abrirMaterialInterno === "function") {
+        const arquivosJoaoPrado = {
+          front: "materiais/Material_Front_End.pdf",
+          mobile: "materiais/Material_Mobile.pdf"
+        };
+
+        if (arquivosJoaoPrado[tipo]) {
+          try {
+            const respostaLocal = await fetch(arquivosJoaoPrado[tipo], {
+              method: "HEAD",
+              cache: "no-store"
+            });
+
+            if (respostaLocal.ok && abrirMaterialInterno(tipo)) {
+              return;
+            }
+          } catch (erro) {
+            // Mantém o fallback externo abaixo.
+          }
+        } else if (abrirMaterialInterno(tipo)) {
+          return;
+        }
       }
 
       if (!LINKS_MATERIAL[tipo]) {

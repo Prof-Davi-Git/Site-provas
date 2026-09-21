@@ -1,4 +1,4 @@
-// MATERIAL INTERNO, MARCA-D'ÁGUA E TEMPO POR QUESTÃO — ATUALIZAÇÃO 20/09/2026-8
+// MATERIAL INTERNO, MARCA-D'ÁGUA E TEMPO POR QUESTÃO — ATUALIZAÇÃO 21/09/2026-1
 const MATERIAIS_INTERNOS = {
   front: {
     titulo: "Material de Front-End",
@@ -14,12 +14,14 @@ const MATERIAIS_INTERNOS = {
   },
   carreiras: {
     titulo: "Material de Carreiras",
-    arquivo: "materiais/Material_Carreiras.pdf",
-    paginas: 14
+    tipo: "imagens",
+    pasta: "materiais/carreiras-slides",
+    paginas: 23
   },
   redes: {
     titulo: "Material de Redes",
-    arquivo: "materiais/Material_Redes.pdf",
+    tipo: "imagens",
+    pasta: "materiais/redes-slides",
     paginas: 58
   }
 };
@@ -52,7 +54,7 @@ function atualizarPaginaMaterial() {
     if (status) status.hidden = true;
 
     const numero = String(paginaMaterialAtual).padStart(3, "0");
-    imagem.src = `${config.pasta}/slide-${numero}.jpg?v=20260920-05`;
+    imagem.src = `${config.pasta}/slide-${numero}.jpg?v=20260921-01`;
 
     imagem.onload = () => {
       imagem.hidden = false;

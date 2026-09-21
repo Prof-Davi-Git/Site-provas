@@ -1,4 +1,4 @@
-// BACKEND PRIVADO — GOOGLE APPS SCRIPT — TRÊS ESCOLAS — ATUALIZAÇÃO 21/09/2026-1
+// BACKEND PRIVADO — GOOGLE APPS SCRIPT — TRÊS ESCOLAS — ATUALIZAÇÃO 21/09/2026-2
 const APPS_SCRIPT_JOAO_PRADO = "https://script.google.com/macros/s/AKfycbyr_lU3SgzvkExYJFrsJChdJ72g9PZXBXPpJnT2N0CcSN3R_F2j4RoWZFzzYnf-aztT/exec";
 const CHAVE_CORRECAO_PENDENTE = "site-provas:correcao-pendente:v1";
 
@@ -99,7 +99,8 @@ async function verificarAlunoNoServidor(nome, escolaSelecionada = "", timeout = 
   return chamarAppsScriptJSONP({
     acao: "verificar",
     escola: escolaParaConsulta,
-    aluno: nome
+    aluno: nome,
+    provaId: typeof PROVA_ID_ATUAL !== "undefined" ? PROVA_ID_ATUAL : ""
   }, timeout);
 }
 
@@ -210,11 +211,39 @@ selecionarAluno = function (nome) {
   selecionarAlunoAntesDoServidor(nome);
 
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
+  const botao = document.querySelector("#btn-iniciar");
+  const erro = document.querySelector("#erro-identificacao");
+
   if (!["joao-prado", "maria-vera", "armando-gomes"].includes(escolaSelecionada)) return;
 
-  // ATUALIZAÇÃO 21/09/2026 — todas as escolas usam a mesma validação.
-  // Não existe mais exceção de "acesso rápido" para a João Prado.
-  validarAlunoSelecionadoServidor(nome);
+  if (typeof alunoEhTeste === "function" && alunoEhTeste(nome)) {
+    if (erro) erro.textContent = "Modo de teste: esta tentativa não será registrada.";
+    if (botao) {
+      botao.disabled = false;
+      botao.removeAttribute("aria-disabled");
+    }
+    return;
+  }
+
+  // ATUALIZAÇÃO 21/09/2026 — não consulta o servidor ao selecionar o nome.
+  // Isso evita dezenas de chamadas simultâneas quando a turma inteira entra.
+  // A confirmação oficial acontece somente ao clicar em "Iniciar prova".
+  statusTentativasServidor.delete(chaveStatusTentativa(escolaSelecionada, nome));
+
+  if (erro && (
+    erro.textContent.includes("já foi registrada") ||
+    erro.textContent.includes("já foi realizada") ||
+    erro.textContent.includes("Verificando") ||
+    erro.textContent.includes("Validando") ||
+    erro.textContent.includes("Não foi possível validar")
+  )) {
+    erro.textContent = "";
+  }
+
+  if (botao) {
+    botao.disabled = false;
+    botao.removeAttribute("aria-disabled");
+  }
 };
 
 async function validarInicioComServidor() {
@@ -239,28 +268,34 @@ async function validarInicioComServidor() {
     return;
   }
 
-  // ATUALIZAÇÃO 21/09/2026 — validação obrigatória para as três escolas.
-  // A prova só começa depois de uma resposta válida do servidor.
   consultaServidorEmAndamento = true;
   botao.disabled = true;
   botao.setAttribute("aria-disabled", "true");
-  erro.textContent = "Validando se esta avaliação já foi realizada...";
+  erro.textContent = "Validando sua tentativa...";
 
   try {
-    const resposta = await verificarAlunoNoServidor(nomeSelecionado, escolaSelecionada, 10000);
+    let resposta = null;
+
+    // Uma tentativa rápida e, se necessário, uma segunda consulta.
+    // Assim reduzimos falsos bloqueios por oscilação do Apps Script sem
+    // permitir iniciar sem uma resposta oficial.
+    try {
+      resposta = await verificarAlunoNoServidor(nomeSelecionado, escolaSelecionada, 4500);
+    } catch (primeiroErro) {
+      resposta = await verificarAlunoNoServidor(nomeSelecionado, escolaSelecionada, 6500);
+    }
 
     if (!resposta?.ok) {
       erro.textContent = resposta?.erro || "Não foi possível validar esta tentativa no servidor.";
-      botao.disabled = true;
-      botao.setAttribute("aria-disabled", "true");
+      botao.disabled = false;
+      botao.removeAttribute("aria-disabled");
       return;
     }
 
+    const chave = chaveStatusTentativa(escolaSelecionada, nomeSelecionado);
+
     if (resposta.bloqueado) {
-      statusTentativasServidor.set(
-        chaveStatusTentativa(escolaSelecionada, nomeSelecionado),
-        "bloqueado"
-      );
+      statusTentativasServidor.set(chave, "bloqueado");
 
       registrarConclusaoLocalComDados({
         escolaId: escolaSelecionada,
@@ -275,12 +310,9 @@ async function validarInicioComServidor() {
       return;
     }
 
-    // Resposta oficial do servidor liberou a tentativa.
-    // Isso também permite que uma liberação feita pelo professor remova um bloqueio local antigo.
-    statusTentativasServidor.set(
-      chaveStatusTentativa(escolaSelecionada, nomeSelecionado),
-      "liberado"
-    );
+    // Servidor é a fonte oficial. Se o professor resetou/liberou o aluno,
+    // apagamos qualquer bloqueio antigo salvo no navegador.
+    statusTentativasServidor.set(chave, "liberado");
     removerConclusaoLocal(escolaSelecionada, nomeSelecionado);
 
     erro.textContent = "";
@@ -288,16 +320,11 @@ async function validarInicioComServidor() {
     botao.removeAttribute("aria-disabled");
     iniciarProvaSemServidor();
   } catch (e) {
-    // Segurança: falha/lentidão do servidor nunca libera uma nova tentativa.
-    // Se já existe conclusão local, mostramos a mensagem definitiva; caso contrário,
-    // pedimos para aguardar a conexão e tentar novamente.
-    if (alunoJaConcluiuLocal(escolaSelecionada, nomeSelecionado)) {
-      erro.textContent = "Esta avaliação já foi realizada por este aluno. Uma nova tentativa precisa ser liberada pelo professor.";
-    } else {
-      erro.textContent = "Não foi possível validar a tentativa agora. Verifique a internet e tente novamente.";
-    }
-    botao.disabled = true;
-    botao.setAttribute("aria-disabled", "true");
+    // Não acusa falsamente que o aluno "já fez" quando o problema é conexão.
+    // O botão volta a ficar disponível para uma nova tentativa de validação.
+    erro.textContent = "Não foi possível validar agora. Verifique a internet e clique em Iniciar prova novamente.";
+    botao.disabled = false;
+    botao.removeAttribute("aria-disabled");
   } finally {
     consultaServidorEmAndamento = false;
   }

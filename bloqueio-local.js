@@ -1,4 +1,4 @@
-// BLOQUEIO LOCAL DE SEGUNDA TENTATIVA — ATUALIZAÇÃO 20/09/2026
+// BLOQUEIO LOCAL DE SEGUNDA TENTATIVA — ATUALIZAÇÃO 21/09/2026
 // Cada avaliação possui um identificador próprio; o aluno teste nunca é bloqueado.
 let PROVA_ID_ATUAL = "joao-prado-frontend-mobile-3b-2026-v1";
 const CHAVE_CONCLUIDAS = "site-provas:concluidas:v1";
@@ -71,17 +71,6 @@ function atualizarAvisoSegundaTentativa() {
     return;
   }
 
-  // Na João Prado, o navegador nunca bloqueia o acesso sozinho.
-  // O servidor é a fonte oficial e a checagem é feita sem travar a seleção.
-  if (escolaSelecionada === "joao-prado") {
-    if (erro.textContent.includes("Esta avaliação já foi registrada para este aluno")) {
-      erro.textContent = "";
-    }
-    botao.disabled = false;
-    botao.removeAttribute("aria-disabled");
-    return;
-  }
-
   if (PROVA_ID_ATUAL && escolaSelecionada && nomeSelecionado && alunoJaConcluiuLocal(escolaSelecionada, nomeSelecionado)) {
     const registro = obterConclusaoLocal(escolaSelecionada, nomeSelecionado);
     const quando = registro?.concluidaEm ? new Date(registro.concluidaEm).toLocaleString("pt-BR") : "anteriormente";
@@ -99,7 +88,14 @@ document.querySelector("#btn-iniciar")?.addEventListener("click", evento => {
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
   const nomeSelecionado = typeof alunoSelecionado !== "undefined" ? alunoSelecionado : "";
 
-  if (escolaSelecionada === "joao-prado" && typeof validarInicioComServidor === "function") return;
+  // ATUALIZAÇÃO 21/09/2026 — nas três escolas o servidor decide se a tentativa
+  // foi liberada ou bloqueada. O registro local funciona como proteção adicional.
+  if (
+    ["joao-prado", "maria-vera", "armando-gomes"].includes(escolaSelecionada) &&
+    typeof validarInicioComServidor === "function"
+  ) {
+    return;
+  }
 
   if (PROVA_ID_ATUAL && escolaSelecionada && nomeSelecionado && alunoJaConcluiuLocal(escolaSelecionada, nomeSelecionado)) {
     evento.preventDefault();

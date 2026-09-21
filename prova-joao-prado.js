@@ -1,6 +1,6 @@
 // AVALIAÇÕES POR ESCOLA — ATUALIZAÇÃO 20/09/2026
 // João Prado: Front-End + Mobile. Maria Vera e Armando Gomes: provas únicas com 40 questões.
-const TEMPO_JOAO_PRADO_SEGUNDOS = 60 * 60;
+const TEMPO_JOAO_PRADO_SEGUNDOS = 30 * 60;
 const TEMPO_MARIA_VERA_SEGUNDOS = 60 * 60;
 const TEMPO_ARMANDO_GOMES_SEGUNDOS = 60 * 60;
 
@@ -159,7 +159,7 @@ function carregarProvaJoaoPrado() {
   configurarMateriais(["front", "mobile"]);
   atualizarInterfaceProva(
     "Avaliação de Front-End e Mobile",
-    "A prova possui 40 questões de Front-End e Mobile, misturadas entre si. Tempo máximo: 60 minutos. A ordem das questões e das alternativas é personalizada para cada aluno. Os dois materiais podem ser consultados ao lado da prova.",
+    "A prova possui 40 questões de Front-End e Mobile, misturadas entre si. Tempo máximo: 30 minutos. A ordem das questões e das alternativas é personalizada para cada aluno. Os dois materiais podem ser consultados ao lado da prova.",
     TEMPO_JOAO_PRADO_SEGUNDOS
   );
 }

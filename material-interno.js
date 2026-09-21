@@ -35,8 +35,6 @@ function atualizarPaginaMaterial() {
   const visualizador = document.querySelector("#visualizador-material");
   const imagem = document.querySelector("#imagem-material-slide");
   const status = document.querySelector("#material-slide-status");
-  const imagem = document.querySelector("#imagem-material-slide");
-  const status = document.querySelector("#material-slide-status");
   const indicador = document.querySelector("#pagina-material");
   const anterior = document.querySelector("#pagina-material-anterior");
   const proxima = document.querySelector("#pagina-material-proxima");
@@ -121,6 +119,8 @@ function fecharMaterialInterno() {
   const painel = document.querySelector("#material-interno");
   const layout = document.querySelector("#area-prova-com-material");
   const visualizador = document.querySelector("#visualizador-material");
+  const imagem = document.querySelector("#imagem-material-slide");
+  const status = document.querySelector("#material-slide-status");
   const app = document.querySelector(".app-shell");
   if (painel) {
     painel.hidden = true;

@@ -1,4 +1,4 @@
-// MATERIAL INTERNO, MARCA-D'ÁGUA E TEMPO POR QUESTÃO — ATUALIZAÇÃO 20/09/2026
+// MATERIAL INTERNO, MARCA-D'ÁGUA E TEMPO POR QUESTÃO — ATUALIZAÇÃO 20/09/2026-4
 const MATERIAIS_INTERNOS = {
   front: {
     titulo: "Material de Front-End",
@@ -37,10 +37,29 @@ function atualizarPaginaMaterial() {
   if (!config || !visualizador) return;
 
   paginaMaterialAtual = Math.max(1, Math.min(config.paginas, paginaMaterialAtual));
-  visualizador.src = `${config.arquivo}#page=${paginaMaterialAtual}&toolbar=0&navpanes=0&view=FitH`;
-  if (indicador) indicador.textContent = `Página ${paginaMaterialAtual} de ${config.paginas}`;
-  if (anterior) anterior.disabled = paginaMaterialAtual <= 1;
-  if (proxima) proxima.disabled = paginaMaterialAtual >= config.paginas;
+
+  const modoSlides = ["front", "mobile"].includes(materialInternoAtual);
+  const fragmento = modoSlides
+    ? `#page=${paginaMaterialAtual}&zoom=page-fit&view=Fit&toolbar=0&navpanes=0&scrollbar=0`
+    : `#page=${paginaMaterialAtual}&toolbar=0&navpanes=0&view=FitH`;
+
+  visualizador.src = `${config.arquivo}${fragmento}`;
+
+  if (indicador) {
+    indicador.textContent = modoSlides
+      ? `Slide ${paginaMaterialAtual} de ${config.paginas}`
+      : `Página ${paginaMaterialAtual} de ${config.paginas}`;
+  }
+
+  if (anterior) {
+    anterior.textContent = modoSlides ? "← Voltar" : "Página anterior";
+    anterior.disabled = paginaMaterialAtual <= 1;
+  }
+
+  if (proxima) {
+    proxima.textContent = modoSlides ? "Avançar →" : "Próxima página";
+    proxima.disabled = paginaMaterialAtual >= config.paginas;
+  }
 }
 
 function abrirMaterialInterno(tipo) {
@@ -55,7 +74,10 @@ function abrirMaterialInterno(tipo) {
   const layout = document.querySelector("#area-prova-com-material");
   const app = document.querySelector(".app-shell");
   const titulo = document.querySelector("#titulo-material-interno");
-  if (painel) painel.hidden = false;
+  if (painel) {
+    painel.hidden = false;
+    painel.classList.toggle("modo-slides", ["front", "mobile"].includes(tipo));
+  }
   if (layout) layout.classList.add("com-material");
   if (app) app.classList.add("material-aberto");
   if (titulo) titulo.textContent = config.titulo;
@@ -68,7 +90,10 @@ function fecharMaterialInterno() {
   const layout = document.querySelector("#area-prova-com-material");
   const visualizador = document.querySelector("#visualizador-material");
   const app = document.querySelector(".app-shell");
-  if (painel) painel.hidden = true;
+  if (painel) {
+    painel.hidden = true;
+    painel.classList.remove("modo-slides");
+  }
   if (layout) layout.classList.remove("com-material");
   if (app) app.classList.remove("material-aberto");
   if (visualizador) visualizador.removeAttribute("src");

@@ -1,4 +1,4 @@
-// BACKEND PRIVADO — GOOGLE APPS SCRIPT — TRÊS ESCOLAS
+// BACKEND PRIVADO — GOOGLE APPS SCRIPT — TRÊS ESCOLAS — ATUALIZAÇÃO 20/09/2026
 const APPS_SCRIPT_JOAO_PRADO = "https://script.google.com/macros/s/AKfycbyr_lU3SgzvkExYJFrsJChdJ72g9PZXBXPpJnT2N0CcSN3R_F2j4RoWZFzzYnf-aztT/exec";
 const CHAVE_CORRECAO_PENDENTE = "site-provas:correcao-pendente:v1";
 
@@ -150,19 +150,11 @@ selecionarAluno = function (nome) {
   selecionarAlunoAntesDoServidor(nome);
   const escolaSelecionada = document.querySelector("#escola-aluno")?.value || "";
   if (["joao-prado", "maria-vera", "armando-gomes"].includes(escolaSelecionada)) {
-    const botao = document.querySelector("#btn-iniciar");
-    const erro = document.querySelector("#erro-identificacao");
-
-    if (alunoJaConcluiuLocal(escolaSelecionada, nome)) {
-      atualizarAvisoSegundaTentativa();
-      return;
-    }
-
-    if (erro) erro.textContent = "";
-    if (botao) {
-      botao.disabled = false;
-      botao.removeAttribute("aria-disabled");
-    }
+    // O servidor é a fonte oficial para saber se o aluno já realizou a prova.
+    // Um bloqueio antigo salvo no navegador não pode impedir uma nova consulta.
+    // Se o professor zerou/liberou a tentativa no backend, a validação abaixo
+    // remove automaticamente o registro local antigo.
+    validarAlunoSelecionadoServidor(nome);
   }
 };
 
